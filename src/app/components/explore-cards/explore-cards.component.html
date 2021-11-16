@@ -1,0 +1,106 @@
+<!-- Hero Start -->
+<section class="bg-half bg-light d-table w-100" id="home">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 text-center">
+                <div class="page-next-level">
+                    <h4 class="title">List Of Minted Horrocards </h4>
+                    <br>
+                </div>
+            </div>
+            <!--end col-->
+        </div>
+        <!--end row-->
+    </div>
+    <!--end container-->
+</section>
+<!--end section-->
+<!-- Hero End -->
+
+<!-- Shape Start -->
+<div class="position-relative">
+    
+    <div class="shape overflow-hidden text-white">
+        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+        </svg>
+    </div>
+</div>
+<!--Shape End-->
+
+<div *ngIf="isLoading" style="text-align: center; height: 500px;padding-bottom: 850px;" >
+    <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
+    <p class="text-primary"><b>Loading</b></p>
+  </div>
+
+  <section *ngIf="!isLoading && (cards == null || cards.length === 0)" class="section">
+    <div class="container">
+        <div class="">
+            <div class="search-form">
+              <form>
+                <input #searchBar name="search"  id="number" class="form-control rounded-pill" [value]="filter"
+                  placeholder="Search #" style="background-color:#1c2530;" (keypress)="($event.charCode >= 48 && $event.charCode < 58)" autocomplete="off">
+                <button type="button"  class="btn btn-pills btn-primary" (click)="searchCube(searchBar.value)">Search</button>
+              </form>
+              <!--end form-->
+            </div>
+          </div>
+        
+          <br><br><br><br><br><br><br><br><br>
+          <div class="text-capitalize text-dark mb-4 error-page" style="text-align: center;">No Horrocards were found</div>
+          <br><br><br><br><br><br><br><br><br><br><br><br>
+            <!--end col-->
+        <!--end row-->
+
+    </div>
+    <!--end container-->
+</section>
+
+
+<!-- Work Start -->
+<section *ngIf="!isLoading && (cards != null && cards.length > 0)" class="section" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()" [scrollWindow]="true">
+    <div class="container">
+        <div class="">
+            <div class="search-form">
+              <form>
+                <input #searchBar name="search"  id="number" class="form-control rounded-pill" [value]="filter"
+                  placeholder="Search #" style="background-color:#1c2530;" (keypress)="($event.charCode >= 48 && $event.charCode < 58)" autocomplete="off">
+                <button type="button"  class="btn btn-pills btn-primary" (click)="searchCube(searchBar.value)">Search</button>
+              </form>
+              <!--end form-->
+            </div>
+          </div>
+
+
+        <div id="grid" class="row mt-4 pt-2"> 
+            <div  class="col-lg-3 col-md-3 col-12 spacing picture-item" *ngFor="let horrocard of cards">
+                <div class="card border-0 work-container work-classic" style="margin-bottom: 35px; margin-top: 35px;margin-left: 35px; margin-right: 35px;">
+                    <div class="card-body p-0 rounded" style="background-color:#1c2530; text-align: center;">
+                        <a (click)="goToDetail(horrocard)" style="cursor: pointer; " ><img style="width: 95%; margin-top: 8px;" src="https://storage.googleapis.com/horrocubes-cards-small/{{horrocard.imageLink}}"
+                                class="img-fluid rounded work-image box" alt=""></a>
+                        <div class="content pt-3" style="text-align: center; margin-bottom: 20px;">
+                            <h5 class="mb-0"><a (click)="goToDetail(horrocard)" style="cursor: pointer;"
+                                    class="text-dark title">{{cleanCardName(horrocard.name)}}<span class="text-muted"> #{{parseAssetName(horrocard.assetName)}}</span></a></h5>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="loadingPage" class="col-lg-4 col-md-6 col-12 spacing picture-item">
+                <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "350px", "height": "350px", "width": "250px"}'></sa-spinner-dotted>
+              </div>
+            <!--end col-->
+        </div>
+        <!--end row-->
+
+    </div>
+    <!--end container-->
+</section>
+<!--end section-->
+<!-- Work End -->
+
+<!-- Back to top -->
+<a href="javascript: void(0);" class="btn btn-icon btn-primary back-to-top" id="back-to-top" [ngxScrollTo]="'#home'">
+    <i-feather name="arrow-up" class="icons"></i-feather>
+</a>
+<!-- Back to top -->

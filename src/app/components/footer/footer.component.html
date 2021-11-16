@@ -1,0 +1,68 @@
+<div style="bottom: 0; width: 100%; margin-top: auto;">
+    <div *ngIf="footerVariant == 'bg-light';else execute_block">
+        <!-- Footer Start -->
+           </div>
+    <ng-template #execute_block>
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-12 mb-0 mb-md-4 pb-0 pb-md-2">
+                        <h5 class="text-light footer-head">Social Networks</h5>
+                        <ul class="list-unstyled social-icon foot-social-icon mb-0 mt-4">
+                            <li class="list-inline-item ms-1"><a href="https://www.instagram.com/horrocubes" class="rounded">
+                                    <i-feather name="instagram" class="fea icon-sm fea-social"></i-feather>
+                                </a></li>
+                            <li class="list-inline-item ms-1"><a href="https://twitter.com/Horrocubes" class="rounded">
+                                    <i-feather name="twitter" class="fea icon-sm fea-social"></i-feather>
+                                </a></li>
+                                <li class="list-inline-item ms-1"><a href="https://discord.gg/9HfwFvqUS7" class="rounded">
+                                    <i-feather name="discord" class="fab fa-discord"></i-feather>
+                                </a></li>
+                        </ul>
+                        <!--end icon-->
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-lg-2 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                        <h5 class="text-light footer-head">Information</h5>
+                        <ul class="list-unstyled footer-list mt-4">
+                            <li><a routerLink="/" (click)="scrollToAbout()" class="text-foot"><i
+                                        class="uil uil-angle-right-b me-1"></i>
+                                    About</a></li>
+                            <li><a routerLink="/faq" class="text-foot"><i
+                                        class="uil uil-angle-right-b me-1"></i>
+                                    FAQ</a></li>
+                            <li><a routerLink="/explore" class="text-foot"><i class="uil uil-angle-right-b me-1"></i>
+                                    Explore</a></li>
+                                    <li><a routerLink="/explore-cards" class="text-foot"><i class="uil uil-angle-right-b me-1"></i>
+                                        Cards</a></li>
+                                    <li><a routerLink="/verify" class="text-foot"><i class="uil uil-angle-right-b me-1"></i>
+                                        Verify</a></li>
+                        </ul>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                        <h5 class="text-light footer-head">Privacy</h5>
+                        <ul class="list-unstyled footer-list mt-4">
+                            <li><a routerLink="/page-terms" class="text-foot"><i class="uil uil-angle-right-b me-1"></i>
+                                    Terms of Services</a></li>
+                            <li><a routerLink="/page-privacy" class="text-foot"><i
+                                        class="uil uil-angle-right-b me-1"></i>
+                                    Privacy Policy</a></li>
+                          </ul>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-lg-3 col-md-4 col-12 mt-4 mt-sm-0 pt-2 pt-sm-0">
+                        <h5 class="text-light footer-head">Contact</h5>
+                        <p class="mt-4">Get in touch if you have any questions.<br><span class="text-primary"><b>team@horrocubes.io</b></span></p>
+                    </div>
+                    <!--end col-->
+                </div>
+                <!--end row-->
+            </div>
+            <!--end container-->
+        </footer>
+    </ng-template>
+</div>

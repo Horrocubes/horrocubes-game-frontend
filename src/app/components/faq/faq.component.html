@@ -1,0 +1,156 @@
+<!-- Hero Start -->
+<section class="bg-half bg-light d-table w-100" id="home">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-12 text-center">
+        <div class="page-next-level">
+          <h4 class="title"> Frequently Ask Questions </h4>
+        </div>
+      </div>
+      <!--end col-->
+    </div>
+    <!--end row-->
+  </div>
+  <!--end container-->
+</section>
+<!--end section-->
+<!-- Hero End -->
+
+<!-- Shape Start -->
+<div class="position-relative">
+  <div class="shape overflow-hidden text-white">
+    <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+    </svg>
+  </div>
+</div>
+<!--Shape End-->
+
+<!-- Start Terms & Conditions -->
+<section class="section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="card rounded">
+
+                     <!-- Accordions Start -->
+                <ngb-accordion #acc="ngbAccordion" activeIds="ngb-panel-0" [closeOthers]="false">
+                  <ngb-panel id="ngb-panel-0" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingone">
+                        <h6 class="title mb-0 text-dark">What is an NFT? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">A non-fungible token (NFT) is a unit of data stored on the blockchain that certifies digital assets to be unique. These assets can then be tracked to provide proof of ownership.
+                      </p>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-1" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingone">
+                        <h6 class="title mb-0 text-dark">What is the difference between Mary-era NFTs and Alonzo-era NFTs? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">Mary-era NFT's are created by setting a deadline, after which nobody is allowed to mint or burn any more tokens. Hence by making a token and waiting for the deadline to pass, we can "create" an NFT. However, the issue with this approach is that you must trust the minter of the NFT not to duplicate these NFTs before the deadline pass.</p>
+                        <br>
+                        <p class="text-muted mb-0 faq-ans">Alonzo-era NFTs leverage the power of Plutus minting policy scripts to create true NFTs; once these NFTs are minted, it is impossible to create a duplicate. The minting policy of this type of NFT takes and validates as a parameter a specific UXTO and makes sure the UTXO is spent during the minting transaction.</p>
+                        <br>
+                        <p class="text-muted mb-0 faq-ans">You can learn more about it in the following lecture that Lars Brünjes made for the Plutus Pioneer Program:</p>
+                        <br>
+                        <p class="text-muted mb-0 faq-ans">
+                          <a href="https://www.youtube.com/watch?v=6VbhY162GQA" class="mt-3 h6 text-primary">https://www.youtube.com/watch?v=6VbhY162GQA</a>
+                        </p>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-2" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingone">
+                        <h6 class="title mb-0 text-dark">What kind of NFT are the Horrocubes? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">All Horrocubes as well as the all the puzzle rewards are Alonzo-era NFTs.</p>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-3" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingone">
+                        <h6 class="title mb-0 text-dark">Which wallets are currently supported? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">
+                        Daedalus<br>
+                        Yoroi<br>
+                        AdaLite<br></p>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-4" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingtwo">
+                        <h6 class="title mb-0 text-dark">How many Horrocubes will be minted? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">There will be a total of 10.000 Horrocubes minted.</p>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-5" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingthree">
+                        <h6 class="title mb-0 text-dark">How can I validate my policy ID? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">We have set up two Github repositories with a step by step guides on how to create and validate the policy script and policy ID of your Horrocube.</p>
+                      <br>
+                      <p class="text-muted mb-0 faq-ans">If you have one of the Founder cubes with unique policy IDs go here:</p>
+                      <br>
+                      <p class="text-muted mb-0 faq-ans">
+                        <a href="https://github.com/Horrocubes/cardano-nft-factory" class="mt-3 h6 text-primary"><p class="text-muted mb-0 faq-ans"></p>https://github.com/Horrocubes/cardano-nft-factory</a>
+                        <br>
+                        <br>
+                        <p class="text-muted mb-0 faq-ans">Otherwise go here:</p>
+                        <br>
+                        <a href="https://github.com/Horrocubes/horrocubes-mint-policy-script" class="mt-3 h6 text-primary"><p class="text-muted mb-0 faq-ans"></p>https://github.com/Horrocubes/horrocubes-mint-policy-script</a>
+                    </ng-template>
+                  </ngb-panel>
+                  <ngb-panel id="ngb-panel-6" cardClass="border-0 rounded shadow mb-2">
+                    <ng-template ngbPanelTitle>
+                      <div class="border-0 " id="headingthree">
+                        <h6 class="title mb-0 text-dark">How can I verify my Horrocube is authentic? <i-feather name="chevron-down"></i-feather></h6>
+                      </div>
+                    </ng-template>
+                    <ng-template ngbPanelContent>
+                      <p class="text-muted mb-0 faq-ans">All Horrocubes are digitally signed using ECDSA. You can find more information on how to validate your Horrocube signature in the following repository:</p>
+                      <br>
+                      <p class="text-muted mb-0 faq-ans">
+                        <a href="https://github.com/Horrocubes/horrocubes-signature-validator" class="mt-3 h6 text-primary">https://github.com/Horrocubes/horrocubes-signature-validator</a>
+                      </p>
+                      <br>
+                      <p class="text-muted mb-0 faq-ans">Alternatively, you can use the function "Verify" on this website and input your Horrocube policy ID.</p>        
+                    </ng-template>
+                  </ngb-panel>
+                </ngb-accordion>
+        <!--end col-->
+          <!-- Accordions End -->
+
+        </div>
+      </div>
+      <!--end col-->
+    </div>
+    <!--end row-->
+  </div>
+  <!--end container-->
+</section>
+<br><br><br>
+<!--end section-->
+<!-- End Terms & Conditions -->
+
+<!-- Back to top -->
+<a href="javascript: void(0);" class="btn btn-icon btn-primary back-to-top" id="back-to-top" [ngxScrollTo]="'#home'">
+  <i-feather name="arrow-up" class="icons"></i-feather>
+</a>
+<!-- Back to top -->
