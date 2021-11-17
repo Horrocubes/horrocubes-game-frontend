@@ -48,6 +48,7 @@ import { FeatherModule } from 'angular-feather';
 import { HttpClientModule } from '@angular/common/http';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { CardanoRef } from './models/CardanoRef';
+import { CardanoService } from './cardano.service';
 
 const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
   direction: 'horizontal',
@@ -110,6 +111,7 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
   providers: [
     { provide: CardanoRef, useValue: window },
     ApiService,
+    CardanoService,
     {
       provide: SWIPER_CONFIG,
       useValue: DEFAULT_SWIPER_CONFIG
