@@ -33,7 +33,6 @@ import { FaqComponent } from './components/faq/faq.component';
 import { VerifyComponent } from './components/verify/verify.component';
 import { GetOneComponent } from './components/get-one/get-one.component';
 import { CubeDetailsComponent } from './components/cube-details/cube-details.component';
-import { CardDetailsComponent } from './components/card-details/card-details.component';
 import { TransactionCompleteComponent } from './components/transaction-complete/transaction-complete.component';
 import { SessionExpiredComponent } from './components/session-expired/session-expired.component';
 import { ApiService } from './api.service';
@@ -72,7 +71,6 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
     VerifyComponent,
     GetOneComponent,
     CubeDetailsComponent,
-    CardDetailsComponent,
     TransactionCompleteComponent,
     SessionExpiredComponent,
     ExploreCardsComponent

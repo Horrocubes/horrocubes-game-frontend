@@ -10,8 +10,9 @@ import { FaqComponent } from './components/faq/faq.component';
 import { VerifyComponent } from './components/verify/verify.component';
 import { GetOneComponent } from './components/get-one/get-one.component';
 import { CubeDetailsComponent } from './components/cube-details/cube-details.component';
-import { CardDetailsComponent } from './components/card-details/card-details.component';
 import { TransactionCompleteComponent } from './components/transaction-complete/transaction-complete.component';
+import { StoryComponent } from './components/story/story.component';
+
 import { SessionExpiredComponent } from './components/session-expired/session-expired.component';
 import { combineLatest } from 'rxjs/internal/operators';
 import { ExploreCardsComponent } from './components/explore-cards/explore-cards.component';
@@ -23,17 +24,7 @@ const routes: Routes = [
     children: [
       { path: '', component: IndexComponent },
       { path: 'index', component: IndexComponent },
-      { path: 'page-privacy', component: PagePrivacyComponent },
-      { path: 'page-terms', component: PageTermsComponent },
-      { path: 'faq', component: FaqComponent },
-      { path: 'explore', component: ExploreComponent },
-      { path: 'explore-cards', component: ExploreCardsComponent },
-      { path: 'verify', component: VerifyComponent },
-      { path: 'get-one', component: GetOneComponent },
-      { path: 'cube-details', component: CubeDetailsComponent },
-      { path: 'card-details', component: CardDetailsComponent },
-      { path: 'transaction-completed', component: TransactionCompleteComponent },
-      { path: 'session-expired/:id', component: SessionExpiredComponent },
+      { path: 'story', component: StoryComponent },
       { path: '**', pathMatch: 'full', component: PageErrorComponent }
     ]
   },

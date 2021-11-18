@@ -33,7 +33,7 @@ export class IndexComponent implements OnInit {
       console.log("Missing Nami Wallet");
       return;
     }
-
+    this.cubes = [];
     this.isNamiWalletPresent = true;
 
     this._cardano.getConnectionState().subscribe(x => 
@@ -45,11 +45,17 @@ export class IndexComponent implements OnInit {
       {
         this._cardano.getHorrocubes().subscribe(asset => 
           {
-            this.cubes = [];
             this.cubes.push(asset);
+            console.log(this.cubes);
             this.isLoading = false;
           });
-          
+
+          this._cardano.getHorrocards().subscribe(asset => 
+            {
+              this.cards.push(asset);
+              console.log(this.cards);
+              this.isLoading = false;
+            });
       }
     });
   }
@@ -58,5 +64,18 @@ export class IndexComponent implements OnInit {
   parseAssetName(name: string)
   {
     return name.substr(9, 5);
+  }
+
+
+  parseCardAssetName(name: string)
+  {
+    return name.substr(name.length - 5, 5);
+  }
+
+  cleanCardName(name: string)
+  {
+    name = name.replace('Horrocard - ', '');
+    name = name.split(' #')[0];
+    return name;
   }
 }

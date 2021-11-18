@@ -85,6 +85,21 @@ export class CardanoService
 
   getHorrocards()
   {
+    const walletObservable$ = defer(() => this._cardanoRef.cardano.getBalance());
+
+    return walletObservable$.pipe(map((result) =>
+    {
+      let val:Value = Value.from_bytes(Buffer.from(result, "hex"));
+
+      let assets = this.valueToAssets(val);
+
+      assets = assets.filter((x) => x.unit !== 'lovelace' && this.isValidCard(x.policyId));
+
+      return assets;
+    }))
+    .pipe(concatMap(x => x))
+    .pipe(mergeMap(x => this.getAssetDetail(x.unit)))
+    .pipe(map(x => this.createHorrocard(x)));
   }
 
   getAssetDetail(asset_id): Observable<any>
@@ -159,6 +174,25 @@ export class CardanoService
     return cube;
   }
 
+  createHorrocard(asset)
+  {
+    let card: Horrocard = new Horrocard(
+      this.hex2a(asset.asset_name),
+      asset.onchain_metadata.name,
+      asset.onchain_metadata.description,
+      this.getCachedUrl(asset.onchain_metadata.image),
+      asset.onchain_metadata.image,
+      "",
+      "",
+      "",
+      asset.policy_id,
+      "",
+      "");
+
+    return card;
+  }
+
+
   hex2a(hexx) {
     var hex = hexx.toString();//force conversion
     var str = '';
@@ -229,7 +263,9 @@ export class CardanoService
       "cf3d0ca05501e95f6849b41bd01ca502b3d1dd988d9c41a0bf070c79",
       "1b433d19e8cbd2f4ae1395fc20379d3f7e8ec768b9ae8d53c4e5f977",
       "52ceb9eb59f402eab23bfa29281816b18b44df572fb3b7ece5418eea",
-      "1c1378e126eae8f005786a34f32c2f83d0e1122352d18e103691c1ef"];
+      "1c1378e126eae8f005786a34f32c2f83d0e1122352d18e103691c1ef",
+      // Testnet
+      "c80b6a4ecfcc6632ab03c4ca4afe94a8613c4972db3aa9afcd155cc1"];
 
       return cardIds.includes(policyId);
   }
@@ -422,7 +458,8 @@ export class CardanoService
       "625e8c26cddfc48928ebfec5d610774328e8453e878a198f5628fed3",
       "89a0cff59597ed3f64a40cb1e582b5d1f6be210120f2953fc9b70e1e",
       // Testnet cubes
-      "e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd"];
+      "e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd",
+      "527663e2a745f28b30c02abc3a815cceda0631982b00eafec7c7ce53"];
 
       return cubeIds.includes(policyId);
   }
