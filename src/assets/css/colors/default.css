@@ -1,10 +1,39 @@
+.thread-reply-file {
+  font-weight: bold;
+  font-size: 10px;
+  color: #7952B3;
+  float: left;
+  cursor: pointer;
+  margin: 10px;
+  padding: 10px;
+  text-align: center;
+  width: 80px;
+  height: 85px;
+  overflow: hidden;
+}
+.thread-reply-file span {
+  display: block;
+}
+.thread-reply-file img {
+  width: 50px;
+}
+div[title=Comments]:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
 .progressBar {
+  width: 100%;
+}
+
+.wrapper-progressBar {
+  width: 100%;
 }
 
 .progressBar li {
     list-style-type: none;
     float: left;
-    width: 33%;
     position: relative;
     text-align: center;
 }
@@ -15,20 +44,20 @@
     border-radius: 50%;
     width: 17px;
     height: 17px;
-    border: 1px solid #ddd;
+    border: 0px solid #333;
     border-left:none;
     display: block;
     text-align: center;
     margin: 8.5px auto 0px;
-    background-color: #eee;
+    background-color: #333;
 }
 .progressBar li:after {
     content: "";
     position: absolute;
     width: 97%;
     height: 5px;
-    background-color: #eee;
-    border: 1px solid #ddd;
+    background-color: #333;
+    border: 10x solid #333;
     border-right:none;
     top: 15px;
     left: -50%;
@@ -40,16 +69,16 @@
 }
 
 .progressBar li.active {
-    color: dodgerblue;
+    color: #7952B3;
 }
 
 .progressBar li.active:before {
-    border-color: dodgerblue;
-    background-color: dodgerblue
+    border-color: #7952B3;
+    background-color: #7952B3
 }
 
 .progressBar .active:after {
-    background-color: dodgerblue;
+    background-color: #7952B3;
 }
 
 .tabs {

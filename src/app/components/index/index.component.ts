@@ -7,6 +7,8 @@ import { Observable } from 'rxjs';
 import { Horrocube } from '../../models/Horrocube';
 import { Horrocard } from '../../models/Horrocard';
 import { CardanoService } from '../../cardano.service';
+import { StoryService } from '../../story.service';
+import { Router, NavigationEnd } from "@angular/router";
 
 @Component({
   selector: 'app-index',
@@ -24,7 +26,7 @@ export class IndexComponent implements OnInit {
   isLoading: boolean =  true;
   isConnected: boolean =  false;
   isNamiWalletPresent: boolean = false;
-  constructor(private _cardano: CardanoService) {}
+  constructor(private _cardano: CardanoService, private _story: StoryService, private router: Router) {}
 
   ngOnInit(): void
   {
@@ -77,5 +79,11 @@ export class IndexComponent implements OnInit {
     name = name.replace('Horrocard - ', '');
     name = name.split(' #')[0];
     return name;
+  }
+
+  openStory(cube: Horrocube)
+  {
+    this._story.setCurrentCube(cube);
+    this.router.navigate(['/story']);
   }
 }

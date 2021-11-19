@@ -1,35 +1,70 @@
 <div class="container">
   <section class="section">
     <br><br><br>
+    <div class="text-capitalize text-dark mb-4 error-page" style="text-align: center;">Horrocubes -  Beta Test Story</div>
     <div class="row" class="">
       <div class="col-xs-12 col-md-8 offset-md-2 block" >
         <div class="wrapper-progressBar">
           <ul class="progressBar">
-            <li class="active">Leve 1</li>
-            <li class="active">Leve 2</li>
-            <li>Leve 3</li>
+            <li [ngClass]="{'active' : level.isSolved || level.isCurrent}" class="active" [style.width]="getLevelTrackerSegmentWidth()" *ngFor="let level of _levels">{{level.title}}</li>
           </ul>
         </div>
       </div>
     </div>
     <br><br><br>
-    <div class="row" class="col-xs-12 col-md-8 offset-md-2 block border card-body p-0 rounded" style="background-color:#1c2530;">
-      <br><br><br>
-      <br><br><br>
-      <br><br><br>
-      <br><br><br>
-      <br><br><br>
-      <br><br><br>
-      <br><br><br>
-    <div style="width: 50%;margin: 0 auto;text-align: center;" class="mb-3">
-      <label class="form-label">Answer</label>
-      <div class="form-icon position-relative">
-        <input placement="bottom" ngbTooltip="Please write this code down." name="customerId" type="text" class="form-control ps-5">
-          <br>
-      </div>
-    </div>
+    <div id="grid" class="row mt-4 pt-2"> 
+      <div  class="col-lg-2 col-md-2 col-6 picture-item" style="margin: 0 auto;text-align: center;margin-bottom: 30px;">
+          <div class="card border-0 work-container work-classic">
+              <div class="card-body p-0 rounded" style="background-color:#1c2530; text-align: center;">
+                  <a><img style="width: 95%; margin-top: 8px;" src="{{_currentCube.imageLink}}"
+                          class="img-fluid rounded work-image box" alt=""></a>
+                  <div class="content pt-3" style="text-align: center;">
+                      <h5 class="mb-0" style="margin-bottom: 8px;"><a 
+                              class="text-dark title"><span class="text-muted" > #{{parseAssetName(_currentCube.assetName)}}</span></a></h5><br>
 
-    </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="col-lg-7 col-md-7 col-7 picture-item block card-body p-0 rounded" style="background-color:#1c2530;">
+        {{ _currentLevel.content }}<br><br><br><br><br><br><br><br><br><br><br><br>
+        
+        <hr>
+
+        <div style="width: 50%;margin: 0 auto;text-align: center;" class="mb-3">
+
+
+          <label class="form-label">Attachments</label>
+
+
+          <div id="grid" class="row mt-4 pt-2"> 
+            <div  class="col-lg-2 col-md-2 col-6 picture-item" style="margin: 0 auto;text-align: center;margin-bottom: 30px;"  *ngFor="let file of _currentLevel.files">
+              <a [href]="file.url"><div class='thread-reply-file'>
+                <img src='https://cdn4.iconfinder.com/data/icons/CS5/128/ACP_PDF%202_file_document.png'>
+                <span>{{file.name}}</span>
+              </div></a>
+            </div>
+          </div>
+        </div>
+        <hr>
+      <div style="width: 50%;margin: 0 auto;text-align: center;" class="mb-3">
+        <label class="form-label">Answer</label>
+        <div class="form-icon position-relative">
+          <input placement="bottom" type="text" class="form-control ps-5">
+            <br>
+            <span>
+              <div class="buy-button">
+                <a class="btn btn-primary">Submit</a>
+              </div>
+            </span>
+        </div>
+      </div>
+  
+      </div>
+      <!--end col-->
+  </div>
+
+
 
 </section>
 </div>

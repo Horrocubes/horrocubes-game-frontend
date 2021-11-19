@@ -48,6 +48,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { CardanoRef } from './models/CardanoRef';
 import { CardanoService } from './cardano.service';
+import { StoryComponent } from './components/story/story.component';
+import { StoryService } from './story.service';
 
 const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
   direction: 'horizontal',
@@ -73,7 +75,8 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
     CubeDetailsComponent,
     TransactionCompleteComponent,
     SessionExpiredComponent,
-    ExploreCardsComponent
+    ExploreCardsComponent,
+    StoryComponent
   ],
   imports: [
     BrowserModule,
@@ -109,6 +112,7 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
   providers: [
     { provide: CardanoRef, useValue: window },
     ApiService,
+    StoryService,
     CardanoService,
     {
       provide: SWIPER_CONFIG,

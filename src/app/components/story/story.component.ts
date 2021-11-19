@@ -5,7 +5,8 @@ import { environment } from '../../../environments/environment';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { ApiService }        from '../../api.service';
-
+import { Level } from 'src/app/models/Level';
+import { StoryService } from '../../story.service';
 @Component({
   selector: 'story',
   templateUrl: './story.component.html',
@@ -17,10 +18,35 @@ import { ApiService }        from '../../api.service';
  */
 export class StoryComponent implements OnInit {
 
+  _levels:Level[] = [];
+  _currentLevel:Level = new Level();
+  _currentCube: Horrocube;
+  constructor(private api: ApiService, private router:Router, private story: StoryService) { }
 
-  constructor(private api: ApiService, private router:Router) { }
+  ngOnInit(): void
+  {
+    this.story.getCurrentLevel().subscribe((x) => this._currentLevel = x);
+    this.story.getAllLevels().subscribe((x) => this._levels = x);
+    this._currentCube = this.story.getcurrentCube();
 
-  ngOnInit(): void {
+    if (this._currentCube == null)
+    this.router.navigate(['/']);
+    console.log(this._currentCube);
+  }
 
+  parseAssetName(name: String)
+  {
+    return name.substr(9, 5);
+  }
+
+
+  getLevelTrackerSegmentWidth()
+  {
+    return (100.0 / (this._levels.length)) + "%";
+  }
+
+  getCurrentContent()
+  {
+    return this._levels.find((x) => x.isCurrent);
   }
 }
