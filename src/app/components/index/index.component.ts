@@ -40,7 +40,6 @@ export class IndexComponent implements OnInit {
 
     this._cardano.getConnectionState().subscribe(x => 
     {
-      console.log(x);
       this.isConnected = x;
 
       if (this.isConnected)
@@ -48,14 +47,14 @@ export class IndexComponent implements OnInit {
         this._cardano.getHorrocubes().subscribe(asset => 
           {
             this.cubes.push(asset);
-            console.log(this.cubes);
+            this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
             this.isLoading = false;
           });
 
           this._cardano.getHorrocards().subscribe(asset => 
             {
               this.cards.push(asset);
-              console.log(this.cards);
+              this.cards.sort((a, b) => a.assetName.localeCompare(b.assetName));
               this.isLoading = false;
             });
       }
@@ -71,7 +70,10 @@ export class IndexComponent implements OnInit {
 
   parseCardAssetName(name: string)
   {
-    return name.substr(name.length - 5, 5);
+    if (name.includes("Horrocard"))
+      return name.substr(name.length - 5, 5); 
+
+    return name.substr(name.length - 14, 5);
   }
 
   cleanCardName(name: string)

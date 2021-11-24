@@ -1,29 +1,32 @@
+import { Story } from './Story';
+
 /**
  * @summary The batting model.
  */
  export class Horrocube
  {
      constructor(
-         public assetName:           String  = "",
-         public name:                String  = "",
-         public core:                String  = "",
-         public aspect:              String  = "",
-         public mechanism:           String  = "",
-         public commuter:            String  = "",
-         public supports:            String  = "",
-         public ornament:            String  = "",
-         public background:          String  = "",
-         public firstCard:           String  = "",
-         public secondCard:          String  = "",
-         public lastCard:            String  = "",
-         public imageLink:           String  = "",
-         public persistentImageLink: String  = "",
-         public policyScriptLink:    String  = "",
-         public signatureLink:       String  = "",
-         public policyId:            String  = "",
-         public txId:                String  = "",
-         public mintingUtxo:         String  = "",
-         public newlyMinted:         boolean = false)
+         public assetName:           string  = "",
+         public name:                string  = "",
+         public core:                string  = "",
+         public aspect:              string  = "",
+         public mechanism:           string  = "",
+         public commuter:            string  = "",
+         public supports:            string  = "",
+         public ornament:            string  = "",
+         public background:          string  = "",
+         public firstCard:           string  = "",
+         public secondCard:          string  = "",
+         public lastCard:            string  = "",
+         public imageLink:           string  = "",
+         public persistentImageLink: string  = "",
+         public policyScriptLink:    string  = "",
+         public signatureLink:       string  = "",
+         public policyId:            string  = "",
+         public txId:                string  = "",
+         public mintingUtxo:         string  = "",
+         public newlyMinted:         boolean = false,
+         public stories:             Story[] = [])
      {
      }
  }

@@ -4,17 +4,17 @@
  export class Horrocard
  {
      constructor(
-         public assetName:           String  = "",
-         public name:                String  = "",
-         public description:         String  = "",
-         public imageLink:           String  = "",
-         public persistentImageLink: String  = "",
-         public persistentBackLink:  String  = "",
-         public policyScriptLink:    String  = "",
-         public signatureLink:       String  = "",
-         public policyId:            String  = "",
-         public txId:                String  = "",
-         public mintingUtxo:         String  = "",
+         public assetName:           string  = "",
+         public name:                string  = "",
+         public description:         string  = "",
+         public imageLink:           string  = "",
+         public persistentImageLink: string  = "",
+         public persistentBackLink:  string  = "",
+         public policyScriptLink:    string  = "",
+         public signatureLink:       string  = "",
+         public policyId:            string  = "",
+         public txId:                string  = "",
+         public mintingUtxo:         string  = "",
          public newlyMinted:         boolean = false)
      {
      }

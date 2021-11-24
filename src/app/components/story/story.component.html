@@ -1,12 +1,12 @@
 <div class="container">
   <section class="section">
     <br><br><br>
-    <div class="text-capitalize text-dark mb-4 error-page" style="text-align: center;">Horrocubes -  Beta Test Story</div>
+    <div class="text-capitalize text-dark mb-4 error-page" style="text-align: center;">{{_currentCube.stories[0].name}}</div>
     <div class="row" class="">
       <div class="col-xs-12 col-md-8 offset-md-2 block" >
         <div class="wrapper-progressBar">
           <ul class="progressBar">
-            <li [ngClass]="{'active' : level.isSolved || level.isCurrent}" class="active" [style.width]="getLevelTrackerSegmentWidth()" *ngFor="let level of _levels">{{level.title}}</li>
+            <li [ngClass]="{'active' : level.isSolved || level.isCurrent}" class="active" [style.width]="getLevelTrackerSegmentWidth()" *ngFor="let level of _currentCube.stories[0].levels ">{{level.title}}</li>
           </ul>
         </div>
       </div>
@@ -27,7 +27,7 @@
           </div>
       </div>
       <div class="col-lg-7 col-md-7 col-7 picture-item block card-body p-0 rounded" style="background-color:#1c2530;">
-        {{ _currentLevel.content }}<br><br><br><br><br><br><br><br><br><br><br><br>
+        {{ _currentCube.stories[0].description }}<br><br><br><br><br><br><br><br><br><br><br><br>
         
         <hr>
 

@@ -2,12 +2,13 @@
 
 import { Injectable }                                 from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError }                     from 'rxjs';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, concatMap, mergeMap, map }       from 'rxjs/internal/operators';
 import { environment }                                from '../environments/environment';
 import { Session }                                    from './models/Session';
 import { Horrocube }                                  from './models/Horrocube';
 import { Horrocard }                                  from './models/Horrocard';
+import { Story }                                      from './models/Story';
 import { CardanoRef }                                 from './models/CardanoRef';
 import * as internal from 'events';
 import * as EmurgoSerialization from './vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
@@ -15,6 +16,7 @@ import { Value } from                './vendors/@emurgo/cardano-serialization-li
 import { Subject, defer } from 'rxjs';
 import { switchMap, filter, tap } from 'rxjs/operators';
 import { Buffer } from "buffer";
+import { Level } from './models/Level';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -74,13 +76,50 @@ export class CardanoService
 
       let assets = this.valueToAssets(val);
 
-      assets = assets.filter((x) => x.unit !== 'lovelace' && this.isValidCube(x.policyId));
 
+      assets = assets.filter((x) => x.unit !== 'lovelace' && this.isValidCube(x.policyId));
       return assets;
     }))
     .pipe(concatMap(x => x))
     .pipe(mergeMap(x => this.getAssetDetail(x.unit)))
-    .pipe(map(x => this.createHorrocube(x)));
+    .pipe(map(x => this.createHorrocube(x)))
+    .pipe(mergeMap(cube => {
+        return this.getAssetDetail(environment.storyPolicyId + this.a2Hex(cube.assetName + environment.storyPostfix))
+        .pipe(catchError(err => of(null))
+      ).pipe(
+          map(storyData => {
+            let story: Story = null;
+            if (storyData !== null)
+            {
+              let lvls:Level[] = [];
+              storyData.onchain_metadata.levels.forEach(level =>
+              {
+                let lvl: Level = new Level(level.title, level.content, [], level.answer);
+                lvls.push(lvl);
+              });
+
+              let description:string = "";
+              
+              storyData.onchain_metadata.description.forEach(segment =>
+              {
+                description += segment;
+              });
+
+              story = new Story(storyData.onchain_metadata.name, lvls, this.getCachedUrl(storyData.onchain_metadata.image), description);
+            }
+            if (story === null)
+            {
+              cube.stories = null;
+            }
+            else
+            {
+              cube.stories.push(story);
+            }
+
+            return cube;
+          })
+        );
+      }));
   }
 
   getHorrocards()
@@ -174,6 +213,32 @@ export class CardanoService
     return cube;
   }
 
+  createStory(asset)
+  {
+    let cube: Horrocube = new Horrocube(
+      this.hex2a(asset.asset_name),
+      asset.onchain_metadata.name,
+      asset.onchain_metadata.properties.core,
+      asset.onchain_metadata.properties.aspect,
+      asset.onchain_metadata.properties.mechanism,
+      asset.onchain_metadata.properties.commuter,
+      asset.onchain_metadata.properties.supports,
+      asset.onchain_metadata.properties.ornament,
+      asset.onchain_metadata.properties.background,
+      asset.onchain_metadata.cards[0].name,
+      asset.onchain_metadata.cards[1].name,
+      asset.onchain_metadata.cards[2].name,
+      this.getCachedUrl(asset.onchain_metadata.image),
+      asset.onchain_metadata.image,
+      "",
+      "",
+      asset.policy_id,
+      "",
+      "");
+
+    return cube;
+  }
+
   createHorrocard(asset)
   {
     let card: Horrocard = new Horrocard(
@@ -201,6 +266,17 @@ export class CardanoService
     return str;
   }
 
+  a2Hex(str)
+  {
+    var arr1 = [];
+    for (var n = 0, l = str.length; n < l; n ++) 
+      {
+      var hex = Number(str.charCodeAt(n)).toString(16);
+      arr1.push(hex);
+    }
+    return arr1.join('');
+  }
+
   getCachedUrl(url: string)
   {
     return "https://storage.googleapis.com/horrocubes_small_ipfs/" + url.replace("ipfs://", "") + ".png";
@@ -211,7 +287,6 @@ export class CardanoService
     this._interval = setInterval(() => {
       this._cardanoRef.cardano.isEnabled().then(isWalletEnabled => 
         {
-          console.log(isWalletEnabled);
           if (isWalletEnabled !== this._isWalletEnabled)
           {
             this._isWalletEnabled = isWalletEnabled;
@@ -265,7 +340,9 @@ export class CardanoService
       "52ceb9eb59f402eab23bfa29281816b18b44df572fb3b7ece5418eea",
       "1c1378e126eae8f005786a34f32c2f83d0e1122352d18e103691c1ef",
       // Testnet
-      "c80b6a4ecfcc6632ab03c4ca4afe94a8613c4972db3aa9afcd155cc1"];
+      "c80b6a4ecfcc6632ab03c4ca4afe94a8613c4972db3aa9afcd155cc1",
+      "b3de38699be42ad0b5b563b78c32eadace21a6f46aa15ea10df14fe0",
+      "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c"];
 
       return cardIds.includes(policyId);
   }
@@ -459,7 +536,19 @@ export class CardanoService
       "89a0cff59597ed3f64a40cb1e582b5d1f6be210120f2953fc9b70e1e",
       // Testnet cubes
       "e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd",
-      "527663e2a745f28b30c02abc3a815cceda0631982b00eafec7c7ce53"];
+      "527663e2a745f28b30c02abc3a815cceda0631982b00eafec7c7ce53",
+      "18d82d4020cd6c1404437796a21dccdddd0b7d53743641ebe1f464b2",
+      "1d5a982329bf55278b809385e8fbb989329a7cfacf625dddd5a461ea",
+      "24febdcfc7f1962a53e2a4f54333293fea29234009293dfae6358c25",
+      "60eff82c254e4bbafd7cecc28f806439bf7005f1641dc9657d6e34fe",
+      "6284c3771f9860f16e491b60e65cb88e7ac80a34748882381b018a0a",
+      "704e9808e969243d30fbdf54e62b85db57d2edc4a148812a0759dba3",
+      "704e9808e969243d30fbdf54e62b85db57d2edc4a148812a0759dba3",
+      "73fcabfb245af7d2885f334edc6e54622447389dd0ab9734e2fc3acf",
+      "a5407c0512815d6c058082306efec9020f434f6288686a51ff583b5c",
+      "b79424e6d0d309e2268b5c1bc6900d1cd0d0fd71f081e864caa90c81",
+      "e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd"
+    ];
 
       return cubeIds.includes(policyId);
   }
