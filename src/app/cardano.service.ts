@@ -17,6 +17,7 @@ import { Subject, defer } from 'rxjs';
 import { switchMap, filter, tap } from 'rxjs/operators';
 import { Buffer } from "buffer";
 import { Level } from './models/Level';
+import { ApiService } from './api.service';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -29,7 +30,7 @@ export class CardanoService
   public _isConnected$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   _interval;
   _isWalletEnabled = false;
-  constructor(private _cardanoRef: CardanoRef, private _http: HttpClient)
+  constructor(private _cardanoRef: CardanoRef, private _http: HttpClient, private _apiService: ApiService)
   {
   }
 
@@ -66,6 +67,7 @@ export class CardanoService
   {
   }
 
+  // horrocube, story, asset_id, metadata, script address, contract.plutus 
   getHorrocubes() : Observable<any>
   {
     const walletObservable$ = defer(() => this._cardanoRef.cardano.getBalance());
@@ -81,45 +83,49 @@ export class CardanoService
       return assets;
     }))
     .pipe(concatMap(x => x))
-    .pipe(mergeMap(x => this.getAssetDetail(x.unit)))
-    .pipe(map(x => this.createHorrocube(x)))
+    .pipe(mergeMap(x => this._apiService.getStories(x.tokenName)))
+    .pipe(map(x => this.createHorrocube(x)));
+/*
     .pipe(mergeMap(cube => {
-        return this.getAssetDetail(environment.storyPolicyId + this.a2Hex(cube.assetName + environment.storyPostfix))
-        .pipe(catchError(err => of(null))
-      ).pipe(
-          map(storyData => {
-            let story: Story = null;
-            if (storyData !== null)
-            {
-              let lvls:Level[] = [];
-              storyData.onchain_metadata.levels.forEach(level =>
-              {
-                let lvl: Level = new Level(level.title, level.content, [], level.answer);
-                lvls.push(lvl);
-              });
+      return this.createHorrocube(cube)
+    }).pipe(
+        map(storyData => {
+          let story: Story = null;
+          if (storyData !== null)
+          {
 
-              let description:string = "";
-              
-              storyData.onchain_metadata.description.forEach(segment =>
-              {
-                description += segment;
-              });
-
-              story = new Story(storyData.onchain_metadata.name, lvls, this.getCachedUrl(storyData.onchain_metadata.image), description);
-            }
-            if (story === null)
+            console.log(storyData);
+            console.log(this.hex2a(storyData.asset_name));
+            let lvls:Level[] = [];
+            storyData.onchain_metadata.levels.forEach(level =>
             {
-              cube.stories = null;
-            }
-            else
-            {
-              cube.stories.push(story);
-            }
+              let lvl: Level = new Level(level.title, level.content, [], level.answer);
+              lvls.push(lvl);
+            });
 
-            return cube;
-          })
-        );
-      }));
+            let description:string = "";
+            
+            storyData.onchain_metadata.description.forEach(segment =>
+            {
+              description += segment;
+            });
+
+            story = new Story(storyData.onchain_metadata.name, lvls, this.getCachedUrl(storyData.onchain_metadata.image), description);
+            story.assetId = storyData.policy_id + storyData.asset_name;
+          }
+          if (story === null)
+          {
+            cube.stories = null;
+          }
+          else
+          {
+            cube.stories.push(story);
+          }
+
+          return cube;
+        })
+      );
+      };*/
   }
 
   getHorrocards()
@@ -153,6 +159,53 @@ export class CardanoService
     });
 
       return this._http.get(HOST + asset_id, { headers: httpHeaders });
+  };
+
+
+  //https://cardano-testnet.blockfrost.io/api/v0/assets/{asset}/addresses  Gets the address containing the asset (script address).
+  getAssetAddresses(asset_id): Observable<any>
+    {
+      var HOST = 'https://cardano-testnet.blockfrost.io/api/v0/assets/';
+
+      // Step 1
+    const httpHeaders: HttpHeaders = new HttpHeaders({
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'project_id': 'testnetozfiHqTtDYvfiwgG4PQmRyt5E3tBJVDs'
+    });
+
+      return this._http.get(HOST + asset_id + "/addresses", { headers: httpHeaders });
+  };
+
+
+  //https://cardano-testnet.blockfrost.io/api/v0/addresses/{address}/utxos/{asset}  Gets the UTXO at addres containing the asset.
+  getAddressUtxo(address, asset_id): Observable<any>
+  {
+    var HOST = 'https://cardano-testnet.blockfrost.io/api/v0/addresses/';
+
+    // Step 1
+  const httpHeaders: HttpHeaders = new HttpHeaders({
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'project_id': 'testnetozfiHqTtDYvfiwgG4PQmRyt5E3tBJVDs'
+  });
+
+    return this._http.get(HOST + address + "/utxos/" + asset_id, { headers: httpHeaders });
+  };
+
+  //https://cardano-testnet.blockfrost.io/api/v0/scripts/datum/{datum_hash} Gets the current datum value.
+  getDatm(datumHash): Observable<any>
+  {
+    var HOST = 'https://cardano-testnet.blockfrost.io/api/v0/scripts/datum';
+
+    // Step 1
+  const httpHeaders: HttpHeaders = new HttpHeaders({
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'project_id': 'testnetozfiHqTtDYvfiwgG4PQmRyt5E3tBJVDs'
+  });
+
+    return this._http.get(HOST + datumHash, { headers: httpHeaders });
   };
 
  valueToAssets(value: Value)
@@ -190,25 +243,56 @@ export class CardanoService
   createHorrocube(asset)
   {
     let cube: Horrocube = new Horrocube(
-      this.hex2a(asset.asset_name),
-      asset.onchain_metadata.name,
-      asset.onchain_metadata.properties.core,
-      asset.onchain_metadata.properties.aspect,
-      asset.onchain_metadata.properties.mechanism,
-      asset.onchain_metadata.properties.commuter,
-      asset.onchain_metadata.properties.supports,
-      asset.onchain_metadata.properties.ornament,
-      asset.onchain_metadata.properties.background,
-      asset.onchain_metadata.cards[0].name,
-      asset.onchain_metadata.cards[1].name,
-      asset.onchain_metadata.cards[2].name,
-      this.getCachedUrl(asset.onchain_metadata.image),
-      asset.onchain_metadata.image,
+      asset.cube.assetName,
+      asset.cube.name,
+      asset.cube.core,
+      asset.cube.aspect,
+      asset.cube.mechanism,
+      asset.cube.commuter,
+      asset.cube.supports,
+      asset.cube.ornament,
+      asset.cube.background,
+      asset.cube.firstCard,
+      asset.cube.secondCard,
+      asset.cube.lastCard,
+      this.getCachedUrl(asset.cube.persistentImageLink),
+      asset.cube.persistentImageLink,
       "",
       "",
-      asset.policy_id,
+      asset.cube.policyId,
       "",
       "");
+
+      for (let  i = 0; i < asset.stories.length; ++i)
+      {
+        let story: Story = new Story();
+
+        let metadata = JSON.parse(asset.stories[i].metadata);
+
+        story.assetId = asset.stories[i].policyId;
+        story.currentLevel = 0;
+        story.image = this.getCachedUrl(metadata.image);
+        story.name = metadata.name;
+        story.scriptAddress = asset.stories[i].scriptAddress;
+        story.eUtxoId = JSON.parse(asset.utxos[i]);
+        story.plutusScript = JSON.parse(asset.stories[i].plutusScript)
+
+        metadata.description.forEach(segment =>
+        {
+          story.description += segment;
+        });
+
+        let lvls:Level[] = [];
+        metadata.levels.forEach(level =>
+        {
+          let lvl: Level = new Level(level.title, level.content, [], level.answer);
+          lvls.push(lvl);
+        });
+
+        story.levels = lvls;
+
+        cube.stories.push(story);
+      }
 
     return cube;
   }
@@ -257,7 +341,6 @@ export class CardanoService
     return card;
   }
 
-
   hex2a(hexx) {
     var hex = hexx.toString();//force conversion
     var str = '';
@@ -294,6 +377,44 @@ export class CardanoService
           }
         });
     },5000)
+  }
+
+  getLevelFromDatum(hash)
+  {
+    const levels = new Map([
+      ["b7afc0e9c25e4fa2933e0ed75b11024f44b271223ddeb5e919c9ed09489e29a1", 0],
+      ["58b85f4b6b8f3d8e62f406ee77f09afc99a9e1b959389367969bcce3c485c6ad", 1],
+      ["5ee16ffa589de2be0dfd2c4eb55ae6d22e6d96d5cccc5b3e63f9589638169cc8", 2],
+      ["0103c27d58a7b32241bb7f03045fae8edc01dd2f2a70a349addc17f6536fde76", 3],
+      ["8bb54ceaee2f57731094a2e96b8ad87bcc8988b1fa838e8c833eb3b72eae29a1", 4],
+      ["a8d62f7d299c470f1c672c172444cea4f9736ed97c21e5b0dff77410f58689fd", 5],
+      ["2789c54367d48b5d54644965eea5cbb849c00d691ae9263f36d34ed8fef8d9cf", 6],
+      ["22cfa4b3f876b12f285721b99232586202eb2663d8ec30bc420882c11d58ebe6", 7],
+      ["dd378f70303fc1869bb7eca1310ee32d131cc46e1b5a6c2e73fdd291dc8461ff", 8],
+      ["80be0d8f11f2df126a00eba07026d43ceb1b83ed8a038a305e3b1af707f0bae7", 9],
+      ["5de14ff6fe4968dc30b11882ed211372b3bcd605643335ff6aa636c597a55360", 10]
+    ]);
+
+    return levels.get(hash);
+  }
+
+  getDatumFromLevel(index)
+  {
+    const datums = new Map([
+      [0, {constructor:0,fields:[{int:0}]}],
+      [1, {constructor:0,fields:[{int:1}]}],
+      [2, {constructor:0,fields:[{int:2}]}],
+      [3, {constructor:0,fields:[{int:3}]}],
+      [4, {constructor:0,fields:[{int:4}]}],
+      [5, {constructor:0,fields:[{int:5}]}],
+      [6, {constructor:0,fields:[{int:6}]}],
+      [7, {constructor:0,fields:[{int:7}]}],
+      [8, {constructor:0,fields:[{int:8}]}],
+      [9, {constructor:0,fields:[{int:9}]}],
+      [10, {constructor:0,fields:[{int:10}]}]
+    ]);
+
+    return datums.get(index);
   }
 
   isValidCard(policyId: string)

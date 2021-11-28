@@ -46,6 +46,19 @@ export class IndexComponent implements OnInit {
       {
         this._cardano.getHorrocubes().subscribe(asset => 
           {
+            
+            if (asset.stories.length > 0)
+            {
+              for (let i =0; i < asset.stories.length; ++i)
+              {
+                if (asset.stories[i].eUtxoId === null || asset.stories[i].eUtxoId.datumhash === null)
+                  continue;
+
+                asset.stories[i].currentLevel = this._cardano.getLevelFromDatum(asset.stories[i].eUtxoId.datumhash);
+              }
+            }
+
+
             this.cubes.push(asset);
             this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
             this.isLoading = false;

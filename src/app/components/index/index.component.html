@@ -73,7 +73,7 @@
                                                         class="text-dark title">Horrocube<span class="text-muted"> #{{parseAssetName(horrocube.assetName)}}</span></a></h5>
 
                                                 <h5 *ngIf="horrocube.stories !== null" class="mb-0"><a (click)="openStory(horrocube)" style="cursor: pointer;"
-                                                  class="text-dark title">Story: <span class="text-muted"> {{horrocube.stories[0].name}}</span></a></h5>
+                                                  class="text-dark title">Story: <span class="text-muted"> {{horrocube.stories[0]?.name}}</span></a></h5>
                     
                                             </div>
                                         </div>

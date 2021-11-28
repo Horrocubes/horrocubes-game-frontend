@@ -255,6 +255,11 @@ export class ApiService
     return this.httpClient.get<any>(environment.apiBaseUrl + 'getCardPolicyScript/' + utxo + '/' + assetName );
   }
 
+  getStories(cube: string): Observable<any>
+  {
+    return this.httpClient.get<any>(environment.apiBaseUrl + 'getStories/' + cube);
+  }
+
   private handleError(error: HttpErrorResponse): any {
 
     console.log(error);

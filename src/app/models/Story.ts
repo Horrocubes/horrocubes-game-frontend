@@ -1,7 +1,7 @@
 import { Level } from './Level';
 
 /**
- * @summary The batting model.
+ * @summary
  */
  export class Story
  {
@@ -9,7 +9,12 @@ import { Level } from './Level';
          public name: string = "",
          public levels: Level[] = [],
          public image: string = "",
-         public description: string = "")
+         public description: string = "",
+         public assetId: string = "",
+         public scriptAddress: string = "",
+         public eUtxoId: any = {},
+         public currentLevel: number = 0,
+         public plutusScript: any = {})
      {
      }
  }
