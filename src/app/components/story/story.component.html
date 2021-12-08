@@ -50,10 +50,10 @@
       <div style="width: 50%;margin: 0 auto;text-align: center;" class="mb-3">
         <label class="form-label">Answer</label>
         <div class="form-icon position-relative">
-          <input placement="bottom" type="text" class="form-control ps-5">
+          <input #answer  placement="bottom" type="text" class="form-control ps-5">
             <br>
             <span>
-              <div class="buy-button">
+              <div (click)="onClick(answer.value)" class="buy-button">
                 <a class="btn btn-primary">Submit</a>
               </div>
             </span>
@@ -68,3 +68,31 @@
 
 </section>
 </div>
+
+<!-- Back to top -->
+<!-- Empty Modal Content Start -->
+<ng-template #ModalContentCorrect let-modal>
+  <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
+    <div class="modal-body py-5">
+      <div class="text-center">
+        <h5>Correct!</h5>
+          <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
+          <p class="text-muted">You provided the right answer! please wait.</p>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+
+<ng-template #ModalContentIncorrect let-modal>
+  <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
+    <div class="modal-body py-5">
+      <div class="text-center">
+        <h5>Incorrect!</h5>
+          <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
+          <p class="text-muted">You provided the wrong answer!.</p>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<!-- Modal Content End -->

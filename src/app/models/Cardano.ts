@@ -47,7 +47,7 @@ import {Value, Transaction, TransactionUnspentOutput, BaseAddress, RewardAddress
     * 
     * @return The TransactionWitnessSet object.
     */
-   signTx(tx: Transaction, partialSign?: boolean): Promise<TransactionWitnessSet>;
+   signTx(payload: String, partialSign?: boolean): Promise<TransactionWitnessSet>;
    
    /**
     * Nami Wallet doesn't utilize the concept of multipe addresses per wallet. This function will return an array of length 1 and will always return
@@ -90,7 +90,7 @@ import {Value, Transaction, TransactionUnspentOutput, BaseAddress, RewardAddress
    /**
     * Returns the transaction hash, if transaction was submitted successfully, otherwise throws an error.
     */
-   submitTx(): Promise<any>;
+   submitTx(payload: String): Promise<any>;
    
    /**
     * Note To follow the standards of multiple addresses the callback will return an array, although Nami Wallet will
