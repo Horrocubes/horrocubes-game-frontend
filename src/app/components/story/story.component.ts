@@ -140,6 +140,10 @@ transaction =
     //onsole.log(this.toHex(encode(this.fixTransaction(decode(this.typedArrayToBuffer(this.fromHex(this._tx))), decode(this.typedArrayToBuffer(this.fromHex(this._txName)))))));
     //console.log(this._txName);
     //this._cardano.getWalletInstance().cardano.signTx(this._txName);
+
+    let firstPass = Sha256.hash("b79424e6d0d309e2268b5c1bc6900d1cd0d0fd71f081e864caa90c81.Horrocube00021" + "answer4");
+    console.log(firstPass);
+    //let secondPass = Sha256.hash(firstPass, {messageFormat: 'hex-bytes'});
   }
 
   parseAssetName(name: String)
@@ -196,14 +200,109 @@ transaction =
   
   
   
+  getClaimBalance(datum:number, cube, story, trophy)
+  {
+
+    let claimCoin ;
+    if (datum < 3)
+    {
+      claimCoin = this._cardano.assetsToValue([
+        { unit: "lovelace", quantity: "2000000" },
+        {
+          unit:
+            "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
+            this.fromAscii("Horrocoin"),
+          quantity: "1",
+        },
+        {
+          unit:
+          cube,
+          quantity: "1",
+        }
+      ])
+    }
+    else
+    {
+      claimCoin = this._cardano.assetsToValue([
+        { unit: "lovelace", quantity: "2000000" },
+        {
+          unit:
+            "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
+            this.fromAscii("Horrocoin"),
+          quantity: "1",
+        },
+        {
+          unit:
+          cube,
+          quantity: "1",
+        },
+        {
+          unit:
+          story,
+          quantity: "1",
+        },
+        {
+          unit:
+          trophy,
+          quantity: "1",
+        }
+      ])
+    }
+
+    return claimCoin;
+  }
   
   
+  getOriginalBalance(datum:number, story, trophy)
+  {
+    let originalBalance = this._cardano.assetsToValue([
+      { unit: "lovelace", quantity: "3000000" },
+      {
+        unit:
+        story,
+        quantity: "1",
+      },
+      {
+        unit:
+        trophy,
+        quantity: "1",
+      },
+      {
+        unit:
+          "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
+          this.fromAscii("Horrocoin"),
+        quantity: (4 - datum).toString(),
+      },
+    ])
+
+    return originalBalance;
+  }
   
   
-  
-  
-  
-  
+  getNewBalance(datum:number, story, trophy)
+  {
+    let originalBalance = this._cardano.assetsToValue([
+      { unit: "lovelace", quantity: "3000000" },
+      {
+        unit:
+        story,
+        quantity: "1",
+      },
+      {
+        unit:
+        trophy,
+        quantity: "1",
+      },
+      {
+        unit:
+          "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
+          this.fromAscii("Horrocoin"),
+        quantity: (4 - (datum + 1)).toString(),
+      },
+    ])
+
+    return originalBalance;
+  }
   
   
   
@@ -224,12 +323,15 @@ transaction =
     console.log(this._currentCube.stories[0].levels[3].answerHash);
     if (secondPass === this._currentCube.stories[0].levels[this._currentCube.stories[0].currentLevel].answerHash)
     {
+      let currDatumValue = this._currentCube.stories[0].currentLevel;
+      let nexDatValue    = currDatumValue + 1;
+
       this.openModal(this._rightContent);
       this._currentCube.stories[0].currentLevel += 1;
 
-      let redeemer = this._cardano.getRedeemer("2", firstPass);
-      let originalDatum = this._cardano.getDatum("2");
-      let nextDatum = this._cardano.getDatum("3");
+      let redeemer = this._cardano.getRedeemer(currDatumValue.toString(), firstPass);
+      let originalDatum = this._cardano.getDatum(currDatumValue.toString());
+      let nextDatum = this._cardano.getDatum(nexDatValue.toString());
       console.log(this.toHex(originalDatum.to_bytes()));
       console.log(this.toHex(nextDatum.to_bytes()));
 
@@ -274,72 +376,48 @@ transaction =
       EmurgoSerialization.TransactionUnspentOutput.from_bytes(this.fromHex(utxo))
     );
 
-    datums.add(nextDatum);
-    datums.add(originalDatum);
+    if (currDatumValue < 3)
+      datums.add(nextDatum);
 
+
+    datums.add(originalDatum);
 
     //outputs.add(this._cardano.createOutput(walletAddress.to_address(), EmurgoSerialization.Value.new(  EmurgoSerialization.BigNum.from_str("10000000")), null));
     /*"addr_test1wryv07grng6j63hf6tfvlp9ksvqw877aezhvc4jagy2tamc7umtwt+3000000+ 1 07599433c1f538dea3dfc580bf1a5422bb2753df29bdbcb76d68bffc.Horrocube00021s0Story + 1 6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c.BetaTestTrophy00027x199999AB + 3 fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6.Horrocoin"*/
-    let originalBalance = this._cardano.assetsToValue([
-      { unit: "lovelace", quantity: "3000000" },
-      {
-        unit:
-          "07599433c1f538dea3dfc580bf1a5422bb2753df29bdbcb76d68bffc" +
-          this.fromAscii("Horrocube00021s0Story"),
-        quantity: "1",
-      },
-      {
-        unit:
-          "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c" +
-          this.fromAscii("BetaTestTrophy00027x199999AB"),
-        quantity: "1",
-      },
-      {
-        unit:
-          "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
-          this.fromAscii("Horrocoin"),
-        quantity: "2",
-      },
-    ])
+  
+    let storyToken;
+    let trophyToken;
+    let myKeys = Object.keys(this._currentCube.stories[0].eUtxoId.content.value);
 
-    let newOutputBallance = this._cardano.assetsToValue([
-      { unit: "lovelace", quantity: "3000000" },
-      {
-        unit:
-          "07599433c1f538dea3dfc580bf1a5422bb2753df29bdbcb76d68bffc" +
-          this.fromAscii("Horrocube00021s0Story"),
-        quantity: "1",
-      },
-      {
-        unit:
-          "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c" +
-          this.fromAscii("BetaTestTrophy00027x199999AB"),
-        quantity: "1",
-      },
-      {
-        unit:
-          "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
-          this.fromAscii("Horrocoin"),
-        quantity: "1",
-      },
-    ])
+    for (let key of myKeys) {
+      
+      if (key === 'lovelace')
+        continue;
+
+      console.log(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
+      if (Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0].includes("AzathothianPillar"))
+        trophyToken = key + this.toHex(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
+      
+      if (Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0].includes("s0Story"))
+        storyToken = key + this.toHex(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
+    }
+
+    console.log(storyToken);
+    console.log(trophyToken);
+  
+    let originalBalance = this.getOriginalBalance(currDatumValue, storyToken, trophyToken);
+
+    let newOutputBallance = this.getNewBalance(currDatumValue, storyToken, trophyToken);
 
 
-    let claimCoin = this._cardano.assetsToValue([
-      { unit: "lovelace", quantity: "2000000" },
-      {
-        unit:
-          "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
-          this.fromAscii("Horrocoin"),
-        quantity: "1",
-      },
-      {
-        unit:
-          "b79424e6d0d309e2268b5c1bc6900d1cd0d0fd71f081e864caa90c81" +
-          this.fromAscii("Horrocube00021"),
-        quantity: "1",
-      }
-    ])
+    let claimCoin = this.getClaimBalance(currDatumValue, 
+      this._currentCube.policyId + this.fromAscii(this._currentCube.assetName),
+      storyToken,
+      trophyToken);
+
+    console.log(originalBalance);
+    console.log(newOutputBallance);
+    console.log(claimCoin);
 
     /*
           outputs.add(
@@ -363,11 +441,13 @@ transaction =
         )
       );*/
       
-    outputs.add(this._cardano.createOutput(EmurgoSerialization.Address.from_bech32(this._currentCube.stories[0].scriptAddress
-    ), newOutputBallance, nextDatum));
+    if (currDatumValue  < 3)
+    {
+      outputs.add(this._cardano.createOutput(EmurgoSerialization.Address.from_bech32(this._currentCube.stories[0].scriptAddress
+        ), newOutputBallance, nextDatum));
+    }
     
     outputs.add(this._cardano.createOutput(walletAddress.to_address(), claimCoin, null));
-    
     /*
             return {
           datum,
@@ -388,18 +468,17 @@ transaction =
 
     console.log(this._currentCube.stories[0]);
 
-    //let utxoId = this._currentCube.stories[0].eUtxoId.split('#')[0];
-    //let utxoIndex = this._currentCube.stories[0].eUtxoId.split('#')[1];/*
+    let utxoId = this._currentCube.stories[0].eUtxoId.id.split('#')[0];
+    let utxoIndex = this._currentCube.stories[0].eUtxoId.id.split('#')[1];
     let utxo = EmurgoSerialization.TransactionUnspentOutput.new(
       EmurgoSerialization.TransactionInput.new(
-        EmurgoSerialization.TransactionHash.from_bytes(this.fromHex("cd5a811d90f70d2fd789179c6d967d6c77fdcdcfacb353237dc8745e1e98a456")),
-        0),
+        EmurgoSerialization.TransactionHash.from_bytes(this.fromHex(utxoId)),
+        parseInt(utxoIndex)),
         EmurgoSerialization.TransactionOutput.new(
-          this._cardano.getContractAddress("addr_test1wryv07grng6j63hf6tfvlp9ksvqw877aezhvc4jagy2tamc7umtwt"),
+          this._cardano.getContractAddress(this._currentCube.stories[0].scriptAddress),
           originalBalance
         ));
 
-        
     let scrips = this._cardano.getContract(this._currentCube.stories[0].plutusScript);
     const txHash = await this._cardano.finalizeTx(
       scrips,
@@ -410,7 +489,9 @@ transaction =
       datums,
       undefined,
       utxo,
-      redeemer
+      redeemer,
+      currDatumValue,
+      nexDatValue
     );
     return txHash;
 /*
@@ -451,7 +532,5 @@ transaction =
     {
       this.openModal(this._wrongContent);
     }
-
   }
-
 }

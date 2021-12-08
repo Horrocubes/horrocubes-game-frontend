@@ -286,7 +286,9 @@ export class CardanoService
         story.scriptAddress = asset.stories[i].scriptAddress;
 
         if(asset.utxos[i] !== undefined)
+        {
           story.eUtxoId = JSON.parse(asset.utxos[i]);
+        }
 
         story.plutusScript = JSON.parse(asset.stories[i].plutusScript)
 
@@ -357,7 +359,7 @@ export class CardanoService
       EmurgoSerialization.RedeemerTag.new_spend(),
       EmurgoSerialization.BigNum.from_str("0"),
       redeemerData,
-      EmurgoSerialization.ExUnits.new(
+      EmurgoSerialization.ExUnits.new(       
         EmurgoSerialization.BigNum.from_str("9000000"),
         EmurgoSerialization.BigNum.from_str("3000000000")
       )
@@ -404,7 +406,9 @@ export class CardanoService
     datums,
     metadata,
     scriptUtxo,
-    redeemer
+    redeemer,
+    d1,
+    d2
   ) {
     const transactionWitnessSet = EmurgoSerialization.TransactionWitnessSet.new();
     const redeemers = EmurgoSerialization.Redeemers.new();
@@ -583,7 +587,7 @@ pub fn hash_script_data(redeemers: &Redeemers, cost_models: &Costmdls, datums: O
     let originalRedeemers = this.toHex(redeemers.to_bytes());
     let originalDatums    = this.toHex(datums.to_bytes());
 
-    let newDatums = originalDatums.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2)).replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    let newDatums = originalDatums.replace(this.getSerializationLibDatumData(d1), this.getCliDatumData(d1)).replace(this.getSerializationLibDatumData(d2), this.getCliDatumData(d2));
     console.log(this.toHex(redeemers.to_bytes()));
     console.log(this.toHex(datums.to_bytes()));
     console.log(newDatums);
@@ -598,10 +602,10 @@ pub fn hash_script_data(redeemers: &Redeemers, cost_models: &Costmdls, datums: O
 
     let newDataHash = blake(output2.length).update(dataX2).digest('hex');
 
-    let fixedTx = this.toHex(tx.to_bytes()).replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
-    fixedTx = fixedTx.replace(this.getSerializationLibDatumHash(3), this.getCliDatumHash(3));
-    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2));
-    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    let fixedTx = this.toHex(tx.to_bytes()).replace(this.getSerializationLibDatumHash(d1), this.getCliDatumHash(d1));
+    fixedTx = fixedTx.replace(this.getSerializationLibDatumHash(d2), this.getCliDatumHash(d2));
+    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(d1), this.getCliDatumData(d1));
+    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(d2), this.getCliDatumData(d2));
     fixedTx = fixedTx.replace(originalScriptDataHash, newDataHash);
   
     let txVkeyWitnesses = await this._cardanoRef.cardano.signTx(
@@ -635,10 +639,10 @@ pub fn hash_script_data(redeemers: &Redeemers, cost_models: &Costmdls, datums: O
     console.log(this.toHex(signedTx.to_bytes()));
     console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
-    let fixedSignedTx = this.toHex(signedTx.to_bytes()).replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
-    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumHash(3), this.getCliDatumHash(3));
-    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2));
-    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    let fixedSignedTx = this.toHex(signedTx.to_bytes()).replace(this.getSerializationLibDatumHash(d1), this.getCliDatumHash(d1));
+    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumHash(d2), this.getCliDatumHash(d2));
+    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(d1), this.getCliDatumData(d1));
+    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(d2), this.getCliDatumData(d2));
     fixedSignedTx = fixedSignedTx.replace(originalScriptDataHash, newDataHash);
     
     const txHash = await this._cardanoRef.cardano.submitTx(fixedSignedTx);

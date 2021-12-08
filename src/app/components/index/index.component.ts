@@ -54,7 +54,7 @@ export class IndexComponent implements OnInit {
                 if (asset.stories[i].eUtxoId === null || asset.stories[i].eUtxoId.datumhash === null)
                   continue;
 
-                asset.stories[i].currentLevel = this._cardano.getLevelFromDatum(asset.stories[i].eUtxoId.datumhash);
+                asset.stories[i].currentLevel = this._cardano.getLevelFromDatum(asset.stories[i].eUtxoId.content.datumhash);
               }
             }
 
