@@ -13,6 +13,9 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
+            "allowedCommonJsDependencies": [
+              "path", "crypto", "stream", "fs"
+            ],
             "outputPath": "dist/horrocubes-angular",
             "index": "src/index.html",
             "main": "src/main.ts",

@@ -227,9 +227,9 @@ transaction =
       this.openModal(this._rightContent);
       this._currentCube.stories[0].currentLevel += 1;
 
-      let redeemer = this._cardano.getRedeemer("1", firstPass);
-      let originalDatum = this._cardano.getDatum("1");
-      let nextDatum = this._cardano.getDatum("2");
+      let redeemer = this._cardano.getRedeemer("2", firstPass);
+      let originalDatum = this._cardano.getDatum("2");
+      let nextDatum = this._cardano.getDatum("3");
       console.log(this.toHex(originalDatum.to_bytes()));
       console.log(this.toHex(nextDatum.to_bytes()));
 
@@ -298,7 +298,7 @@ transaction =
         unit:
           "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
           this.fromAscii("Horrocoin"),
-        quantity: "3",
+        quantity: "2",
       },
     ])
 
@@ -320,7 +320,7 @@ transaction =
         unit:
           "fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6" +
           this.fromAscii("Horrocoin"),
-        quantity: "2",
+        quantity: "1",
       },
     ])
 
@@ -392,8 +392,8 @@ transaction =
     //let utxoIndex = this._currentCube.stories[0].eUtxoId.split('#')[1];/*
     let utxo = EmurgoSerialization.TransactionUnspentOutput.new(
       EmurgoSerialization.TransactionInput.new(
-        EmurgoSerialization.TransactionHash.from_bytes(this.fromHex("23bec21af3729be09b11e7b3d32dd7064d7d193bf67a24474bc3c450c925cd15")),
-        1),
+        EmurgoSerialization.TransactionHash.from_bytes(this.fromHex("cd5a811d90f70d2fd789179c6d967d6c77fdcdcfacb353237dc8745e1e98a456")),
+        0),
         EmurgoSerialization.TransactionOutput.new(
           this._cardano.getContractAddress("addr_test1wryv07grng6j63hf6tfvlp9ksvqw877aezhvc4jagy2tamc7umtwt"),
           originalBalance

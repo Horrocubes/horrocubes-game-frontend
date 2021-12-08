@@ -19,7 +19,8 @@ import { Buffer } from "buffer";
 import { Level } from './models/Level';
 import { ApiService } from './api.service';
 import CoinSelection from './vendors/coinSelection.js'
-
+import * as libsodiumWrappers from "libsodium-wrappers";
+import * as blake from "blake2b"
 // EXPORTS ************************************************************************************************************/
 
 @Injectable({
@@ -406,6 +407,7 @@ export class CardanoService
     redeemer
   ) {
     const transactionWitnessSet = EmurgoSerialization.TransactionWitnessSet.new();
+    const redeemers = EmurgoSerialization.Redeemers.new();
     let { input, change } = CoinSelection.randomImprove(
       utxos,
       outputs,
@@ -423,7 +425,6 @@ export class CardanoService
       txBuilder.add_output(outputs.get(i));
     }
     if (scriptUtxo) {
-      const redeemers = EmurgoSerialization.Redeemers.new();
       const redeemerIndex = txBuilder
         .index_of_input(scriptUtxo.input())
         .toString();
@@ -539,14 +540,69 @@ export class CardanoService
     if (size > this.getProtocolParameters().maxTxSize)
       throw new Error("MAX_SIZE_REACHED");
 
+        /*
+pub fn hash_script_data(redeemers: &Redeemers, cost_models: &Costmdls, datums: Option<PlutusList>) -> ScriptDataHash {
+    /*
+    ; script data format:
+    ; [ redeemers | datums | language views ]
+    ; The redeemers are exactly the data present in the transaction witness set.
+    ; Similarly for the datums, if present. If no datums are provided, the middle
+    ; field is an empty string.
+    
+    let mut buf = Vec::new();
+    buf.extend(redeemers.to_bytes());
+    if let Some(d) = &datums {
+        buf.extend(d.to_bytes());
+    }
+    buf.extend(cost_models.language_views_encoding());
+    ScriptDataHash::from(blake2b256(&buf))
+                                                d751518d4e046a707da0fa45c59e907975b804e13c53cb7d4d81f9f6b1937e88
+    (PPViewHashesDontMatch (SJust (SafeHash \\\"d751518d4e046a707da0fa45c59e907975b804e13c53cb7d4d81f9f6b1937e88\\\")) 
+    (SJust (SafeHash \\\"5e14f0b034f04e487560f1e10586b37b3683d3ad9851accd5b91ff04a4125f4b\\\")))])\""}
+                        5e14f0b034f04e487560f1e10586b37b3683d3ad9851accd5b91ff04a4125f4b
+    //                   10f9a0b7100600574576cf3bdaa907513ec0ab2805dc5bc85105c8d14f4a5c71
+                         25e820cb2361b7e3eadd44af9b54a070d3c5ba1a49676ceb80d7c650eaac04a5
+                         25e820cb2361b7e3eadd44af9b54a070d3c5ba1a49676ceb80d7c650eaac04a5
+                         a222cedfc3cf912d5cba64ac174f31d156a73409f20ab355f917d595beef1129
+                         901d54ebaa1ab0fb5f397a973717a8dc0a155cdff5adb84ca60bbdf1f1f5f857
+                         3f1d24841dea591395398d0a81280284c7c7979bad95813b462ec5546bb94005
+}*/
+  
 
-    //console.log(this.toHex(tx.to_bytes()));
+    console.log(libsodiumWrappers);
+    await libsodiumWrappers.ready;
+    const sodium = libsodiumWrappers;
 
-    let fixedTx = this.toHex(tx.to_bytes()).replace(this.getSerializationLibDatumHash(1), this.getCliDatumHash(1));
-    fixedTx = fixedTx.replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
-    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(1), this.getCliDatumData(1));
+    let languageViews = EmurgoSerialization.LanguageViews.new(Buffer.from(this.getLanguageViews(), "hex"));
+   // var h = sodium.crypto_generichash(32, sodium.from_hex(this.toHex(EmurgoSerialization.Redeemers.from_bytes(redeemers.to_bytes()).to_bytes())) + this.toHex(datums.to_bytes()) + this.toHex(languageViews.to_bytes()));
+    //console.log(sodium.to_hex(h));
+
+    //var h2 = sodium.crypto_generichash(32, sodium.from_hex());
+    //console.log(sodium.to_hex(h2));
+
+    let originalRedeemers = this.toHex(redeemers.to_bytes());
+    let originalDatums    = this.toHex(datums.to_bytes());
+
+    let newDatums = originalDatums.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2)).replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    console.log(this.toHex(redeemers.to_bytes()));
+    console.log(this.toHex(datums.to_bytes()));
+    console.log(newDatums);
+
+    let output = new Uint8Array(32)
+    let dataX = this.fromHex(originalRedeemers + originalDatums + this.getLanguageViews());
+
+    let originalScriptDataHash = blake(output.length).update(dataX).digest('hex');
+
+    let output2 = new Uint8Array(32)
+    let dataX2 = this.fromHex(originalRedeemers + newDatums + this.getLanguageViews());
+
+    let newDataHash = blake(output2.length).update(dataX2).digest('hex');
+
+    let fixedTx = this.toHex(tx.to_bytes()).replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
+    fixedTx = fixedTx.replace(this.getSerializationLibDatumHash(3), this.getCliDatumHash(3));
     fixedTx = fixedTx.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2));
-    fixedTx = fixedTx.replace("5bf3d7b16ee105d20c7f7c2969fe9d4c581258394b065751a647ef35e0e14782", "8762dd81d457dfd0bc9cde7e9c45682f317c7bc4021720f10cc02ee774fb44cd");
+    fixedTx = fixedTx.replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    fixedTx = fixedTx.replace(originalScriptDataHash, newDataHash);
   
     let txVkeyWitnesses = await this._cardanoRef.cardano.signTx(
       fixedTx,
@@ -579,11 +635,11 @@ export class CardanoService
     console.log(this.toHex(signedTx.to_bytes()));
     console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
-    let fixedSignedTx = this.toHex(signedTx.to_bytes()).replace(this.getSerializationLibDatumHash(1), this.getCliDatumHash(1));
-    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
-    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(1), this.getCliDatumData(1));
+    let fixedSignedTx = this.toHex(signedTx.to_bytes()).replace(this.getSerializationLibDatumHash(2), this.getCliDatumHash(2));
+    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumHash(3), this.getCliDatumHash(3));
     fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(2), this.getCliDatumData(2));
-    fixedSignedTx = fixedSignedTx.replace("5bf3d7b16ee105d20c7f7c2969fe9d4c581258394b065751a647ef35e0e14782", "8762dd81d457dfd0bc9cde7e9c45682f317c7bc4021720f10cc02ee774fb44cd");
+    fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(3), this.getCliDatumData(3));
+    fixedSignedTx = fixedSignedTx.replace(originalScriptDataHash, newDataHash);
     
     const txHash = await this._cardanoRef.cardano.submitTx(fixedSignedTx);
     return txHash;

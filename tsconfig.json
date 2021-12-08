@@ -2,6 +2,12 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "path": [ "./node_modules/path-browserify"],
+      "crypto": ["./node_modules/crypto-browserify" ],
+      "stream": ["./node_modules/stream-browserify"],      
+      "fs": ["empty"]
+    },
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
