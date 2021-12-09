@@ -304,14 +304,35 @@ transaction =
     return originalBalance;
   }
   
-  
-  
+  getAdaOnlyBalance()
+  {
+    let originalBalance = this._cardano.assetsToValue([
+      { unit: "lovelace", quantity: "5000000" },
+    ])
 
+    return originalBalance;
+  }
+  
+  
+// use this recursive function with a parse funciton
+parseObjectProperties (obj, parse) {
+  for (var k in obj) {
+    if (typeof obj[k] === 'object' && obj[k] !== null) {
+      this.parseObjectProperties(obj[k], parse)
+    } else if (obj.hasOwnProperty(k)) {
+      parse(k, obj[k])
+    }
+  }
+}
 
   async onClick(value)
   {
     let firstPass = Sha256.hash(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
     let secondPass = Sha256.hash(firstPass, {messageFormat: 'hex-bytes'});
+
+    console.log(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
+    console.log(firstPass);
+    console.log(secondPass);
 
     console.log(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
     console.log(firstPass);
@@ -389,27 +410,29 @@ transaction =
     let trophyToken;
     let myKeys = Object.keys(this._currentCube.stories[0].eUtxoId.content.value);
 
-    for (let key of myKeys) {
-      
-      if (key === 'lovelace')
-        continue;
+    this.parseObjectProperties(this._currentCube.stories[0].eUtxoId.content.value, (k, prop)=> {
 
-      console.log(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
-      if (Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0].includes("AzathothianPillar"))
-        trophyToken = key + this.toHex(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
-      
-      if (Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0].includes("s0Story"))
-        storyToken = key + this.toHex(Object.keys(this._currentCube.stories[0].eUtxoId.content.value[key])[0]);
-    }
+      if (k.includes("Story0000Horrocube"))
+        storyToken = "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c" + this.toHex(k);
 
+      if (k.includes("AzathothianPillar"))
+        trophyToken = "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c" + this.toHex(k);
+    })
+//Story0000Horrocube00000x00000000
+    console.log("a");
     console.log(storyToken);
     console.log(trophyToken);
   
+    console.log("1");
+    console.log(currDatumValue);
     let originalBalance = this.getOriginalBalance(currDatumValue, storyToken, trophyToken);
-
+    console.log("2");
     let newOutputBallance = this.getNewBalance(currDatumValue, storyToken, trophyToken);
 
-
+    console.log("33333333333333333333333333333333");
+    console.log(this._currentCube.policyId);
+    console.log(this._currentCube.assetName);
+    console.log("33333333333333333333333333333333");
     let claimCoin = this.getClaimBalance(currDatumValue, 
       this._currentCube.policyId + this.fromAscii(this._currentCube.assetName),
       storyToken,
@@ -448,6 +471,8 @@ transaction =
     }
     
     outputs.add(this._cardano.createOutput(walletAddress.to_address(), claimCoin, null));
+    outputs.add(this._cardano.createOutput(walletAddress.to_address(), this.getAdaOnlyBalance(), null));
+    
     /*
             return {
           datum,

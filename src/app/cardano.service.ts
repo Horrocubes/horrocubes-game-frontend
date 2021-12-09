@@ -285,11 +285,10 @@ export class CardanoService
         story.name = metadata.name;
         story.scriptAddress = asset.stories[i].scriptAddress;
 
-        if(asset.utxos[i] !== undefined)
-        {
-          story.eUtxoId = JSON.parse(asset.utxos[i]);
-        }
+        if(asset.utxos[i] === undefined)
+          continue;
 
+        story.eUtxoId = JSON.parse(asset.utxos[i]);
         story.plutusScript = JSON.parse(asset.stories[i].plutusScript)
 
         metadata.description.forEach(segment =>
@@ -355,16 +354,7 @@ export class CardanoService
       )
     );
 
-    const redeemer = EmurgoSerialization.Redeemer.new(
-      EmurgoSerialization.RedeemerTag.new_spend(),
-      EmurgoSerialization.BigNum.from_str("0"),
-      redeemerData,
-      EmurgoSerialization.ExUnits.new(       
-        EmurgoSerialization.BigNum.from_str("9000000"),
-        EmurgoSerialization.BigNum.from_str("3000000000")
-      )
-    );
-    return redeemer;
+    return redeemerData;
   };
 
   initTx()
@@ -399,14 +389,14 @@ export class CardanoService
    */
    async finalizeTx(
     contract,
-    txBuilder,
+    txBuilder: EmurgoSerialization.TransactionBuilder,
     changeAddress,
     utxos,
     outputs,
     datums,
     metadata,
     scriptUtxo,
-    redeemer,
+    redeemerData,
     d1,
     d2
   ) {
@@ -419,6 +409,8 @@ export class CardanoService
       scriptUtxo ? [scriptUtxo] : []
     );
     input.forEach((utxo) => {
+
+      console.log(utxo.output().address().to_bech32());
       txBuilder.add_input(
         utxo.output().address(),
         utxo.input(),
@@ -432,11 +424,26 @@ export class CardanoService
       const redeemerIndex = txBuilder
         .index_of_input(scriptUtxo.input())
         .toString();
+
+      console.log("asdasdasdasdasdsadasdasdas");
+      console.log(redeemerIndex);
+      //console.log(redeemer.index().to_str());
+      console.log("asdasdasdasdasdsadasdasdas")
+
+      let redeemer = EmurgoSerialization.Redeemer.new(
+        EmurgoSerialization.RedeemerTag.new_spend(),
+        EmurgoSerialization.BigNum.from_str(redeemerIndex),
+        redeemerData,
+        EmurgoSerialization.ExUnits.new(           
+          EmurgoSerialization.BigNum.from_str("12000000"),
+          EmurgoSerialization.BigNum.from_str("4000000000")
+        )                                        
+      );
+
       redeemers.add(redeemer);
       txBuilder.set_redeemers(
         EmurgoSerialization.Redeemers.from_bytes(redeemers.to_bytes())
       );
-
 
       txBuilder.set_plutus_data(
         EmurgoSerialization.PlutusList.from_bytes(datums.to_bytes())
@@ -632,19 +639,19 @@ pub fn hash_script_data(redeemers: &Redeemers, cost_models: &Costmdls, datums: O
 
     console.log("Full Tx Size", signedTx.to_bytes().length);
 
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-    console.log(this.toHex(tx.to_bytes()));
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-    console.log(this.toHex(signedTx.to_bytes()));
-    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-
     let fixedSignedTx = this.toHex(signedTx.to_bytes()).replace(this.getSerializationLibDatumHash(d1), this.getCliDatumHash(d1));
     fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumHash(d2), this.getCliDatumHash(d2));
     fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(d1), this.getCliDatumData(d1));
     fixedSignedTx = fixedSignedTx.replace(this.getSerializationLibDatumData(d2), this.getCliDatumData(d2));
     fixedSignedTx = fixedSignedTx.replace(originalScriptDataHash, newDataHash);
     
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    console.log(fixedTx);
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+    console.log(fixedSignedTx);
+    console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+
     const txHash = await this._cardanoRef.cardano.submitTx(fixedSignedTx);
     return txHash;
   }
