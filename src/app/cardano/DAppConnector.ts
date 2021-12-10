@@ -53,8 +53,6 @@ import {
   const ADA_LOVELACE:      string = "lovelace";
   const MEM_BUDGET:        string = "12000000";
   const CPU_BUDGET:        string = "4000000000";
-  const DATUM_LABEL:       number = 405;
-  const ADDRESS_LABEL:     number = 406;
 
   // EXPORTS ************************************************************************************************************/
   
@@ -157,7 +155,6 @@ import {
   
       const datums = EmurgoSerialization.PlutusList.new();
       const outputs = EmurgoSerialization.TransactionOutputs.new();
-      const metadata = { [DATUM_LABEL]: {}, [ADDRESS_LABEL]: {} };
 
       let txBuilder: EmurgoSerialization.TransactionBuilder = this.createTranscationBuilder();
   
