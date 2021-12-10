@@ -1,10 +1,5 @@
-export class Sha256 {
-    /* generate a sha256-hash of a message
-        import { Sha256 } from './sha256.ts'
-        this.hash = Sha256.hash('test')
-        // 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
-     */
-
+export class Sha256
+{
     static hash(message: string, options?: any): string {
         const defaults = { messageFormat: 'string', outputFormat: 'hex' }
         const optional = Object.assign(defaults, options)
@@ -160,5 +155,4 @@ export class Sha256 {
     static Maj(x: number, y: number, z: number) { 
         return (x & y) ^ (x & z) ^ (y & z) 
     } // 'majority'
-
 }

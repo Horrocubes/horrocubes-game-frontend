@@ -1,3 +1,11 @@
+/**
+ * @file coinSelection.js
+ * 
+ * @remark Taken from https://github.com/Berry-Pool/spacebudz/tree/main/src/cardano/market.
+ * 
+ * @copyright Copyright Spacebudz
+ */
+
 import {
   TransactionUnspentOutput,
   TransactionOutputs,
@@ -5,6 +13,7 @@ import {
 } from "./@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib";
 const BigInt = typeof window !== "undefined" && window.BigInt;
 import * as EmurgoSerialization from './@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
+
 /**
  * BerryPool implementation of the __Random-Improve__ coin selection algorithm.
  *
@@ -201,6 +210,16 @@ let protocolParameters = null;
  * @module src/lib/CoinSelection
  */
 const CoinSelection = {
+
+  /**
+   * Gets whether the protocal parameters were already set.
+   * 
+   * @returns True if the parameters were set; otherwise; false.
+   */
+  areParametersSet: () => { 
+    protocolParameters !== null;
+  },
+
   /**
    * Set protocol parameters required by the algorithm
    * @param {string} minUTxO

@@ -8,6 +8,7 @@ import { Horrocube } from '../../models/Horrocube';
 import { Horrocard } from '../../models/Horrocard';
 import { CardanoService } from '../../cardano.service';
 import { StoryService } from '../../story.service';
+import { DatumMappings } from '../../data/DatumMappings';
 import { Router, NavigationEnd } from "@angular/router";
 
 @Component({
@@ -35,6 +36,7 @@ export class IndexComponent implements OnInit {
       console.log("Missing Nami Wallet");
       return;
     }
+
     this.cubes = [];
     this.isNamiWalletPresent = true;
 
@@ -54,7 +56,7 @@ export class IndexComponent implements OnInit {
                 if (asset.stories[i].eUtxoId === null || asset.stories[i].eUtxoId.datumhash === null)
                   continue;
 
-                asset.stories[i].currentLevel = this._cardano.getLevelFromDatum(asset.stories[i].eUtxoId.content.datumhash);
+                asset.stories[i].currentLevel = DatumMappings.getLevelFromDatum(asset.stories[i].eUtxoId.content.datumhash);
               }
             }
 
