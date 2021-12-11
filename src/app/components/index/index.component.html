@@ -94,14 +94,14 @@
                               </a>
                               <ng-template ngbNavContent><div id="grid" class="row mt-4 pt-2"> 
 
-                                <div  class="col-lg-4 col-md-4 col-12 spacing picture-item" *ngFor="let horrocard of cards">
+                                <div  class="col-lg-4 col-md-4 col-12 spacing picture-item" *ngFor="let collectible of collectibles">
                                   <div class="card border-0 work-container work-classic" style="margin-bottom: 35px; margin-top: 35px;margin-left: 35px; margin-right: 35px;">
                                       <div class="card-body p-0 rounded" style="background-color:#1c2530; text-align: center;">
-                                          <a style="cursor: pointer; " ><img style="width: 95%; margin-top: 8px;" src="{{horrocard.imageLink}}"
+                                          <a style="cursor: pointer; " ><img style="width: 95%; margin-top: 8px;" src="{{collectible.image}}"
                                                   class="img-fluid rounded work-image box" alt=""></a>
                                           <div class="content pt-3" style="text-align: center; margin-bottom: 20px;">
                                               <h5 class="mb-0"><a style="cursor: pointer;"
-                                                      class="text-dark title">{{cleanCardName(horrocard.name)}}<span class="text-muted"> #{{parseCardAssetName(horrocard.assetName)}}</span></a></h5>
+                                                      class="text-dark title">{{cleanCardName(collectible.name)}}<span class="text-muted"> #{{parseCardAssetName(collectible.assetName)}}</span></a></h5>
                   
                                           </div>
                                       </div>

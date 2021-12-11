@@ -57,7 +57,6 @@ export class StoryService
     return this._currentCube;
   }
 
-
   getCurrentLevel()
   {
     return this._currentLevel$;

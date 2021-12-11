@@ -45,6 +45,7 @@ import * as blake from 'blake2b';
 import { Policies } from './data/Policies';
 import { BlockchainParameters } from './data/BlockchainParameters';
 import { DatumMappings } from './data/DatumMappings';
+import { Collectible } from './models/Collectible';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -122,7 +123,7 @@ export class CardanoService
     .pipe(map(x => this.createHorrocube(x)));
 }
 
-  getHorrocards()
+  getCollectibles()
   {
     const walletObservable$ = defer(() => this._cardanoRef.cardano.getBalance());
 
@@ -137,22 +138,19 @@ export class CardanoService
       return assets;
     }))
     .pipe(concatMap(x => x))
-    .pipe(mergeMap(x => this.getAssetDetail(x.unit)))
-    .pipe(map(x => this.createHorrocard(x)));
+    .pipe(mergeMap(x => this.getAssetDetail(x.policyId, x.tokenName)))
+    .pipe(map(x => 
+      {
+        if (x === null)
+          return x;
+
+        return new Collectible(x.policyId, x.assetName, x.name, this.getCachedUrl(x.image));
+      }));
   }
 
-  getAssetDetail(asset_id): Observable<any>
-    {
-      const HOST = 'https://cardano-testnet.blockfrost.io/api/v0/assets/';
-
-      // Step 1
-      const httpHeaders: HttpHeaders = new HttpHeaders({
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      project_id: 'testnetozfiHqTtDYvfiwgG4PQmRyt5E3tBJVDs'
-    });
-
-      return this._http.get(HOST + asset_id, { headers: httpHeaders });
+  getAssetDetail(policyId, tokenName): Observable<any>
+  {
+    return this._apiService.getAsset(policyId, tokenName);
   }
 
 
@@ -280,24 +278,6 @@ export class CardanoService
       '');
 
     return cube;
-  }
-
-  createHorrocard(asset)
-  {
-    const card: Horrocard = new Horrocard(
-      this.hex2a(asset.asset_name),
-      asset.onchain_metadata.name,
-      asset.onchain_metadata.description,
-      this.getCachedUrl(asset.onchain_metadata.image),
-      asset.onchain_metadata.image,
-      '',
-      '',
-      '',
-      asset.policy_id,
-      '',
-      '');
-
-    return card;
   }
 
   hex2a(hexx) {

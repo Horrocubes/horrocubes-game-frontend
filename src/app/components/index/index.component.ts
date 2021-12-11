@@ -5,7 +5,7 @@ import { CardanoRef } from '../../models/CardanoRef';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Horrocube } from '../../models/Horrocube';
-import { Horrocard } from '../../models/Horrocard';
+import { Collectible } from '../../models/Collectible';
 import { CardanoService } from '../../cardano.service';
 import { StoryService } from '../../story.service';
 import { DatumMappings } from '../../data/DatumMappings';
@@ -23,7 +23,7 @@ import { Router, NavigationEnd } from '@angular/router';
 export class IndexComponent implements OnInit {
 
   cubes: Horrocube[] = [];
-  cards: Horrocard[] = [];
+  collectibles: Collectible[] = [];
   isLoading =  true;
   isConnected =  false;
   isNamiWalletPresent = false;
@@ -67,10 +67,13 @@ export class IndexComponent implements OnInit {
             this.isLoading = false;
           });
 
-        this._cardano.getHorrocards().subscribe(asset =>
+        this._cardano.getCollectibles().subscribe(asset =>
             {
-              this.cards.push(asset);
-              this.cards.sort((a, b) => a.assetName.localeCompare(b.assetName));
+              if (asset === null)
+                return;
+
+              this.collectibles.push(asset);
+              this.collectibles.sort((a, b) => a.assetName.localeCompare(b.assetName));
               this.isLoading = false;
             });
       }

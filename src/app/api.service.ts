@@ -265,6 +265,11 @@ export class ApiService
     return this.httpClient.get<any>(environment.apiBaseUrl + 'getStories/' + cube);
   }
 
+  getAsset(policyId: string, tokenName: string): Observable<any>
+  {
+    return this.httpClient.get<any>(environment.apiBaseUrl + 'getAssetData/' + policyId + '/' + tokenName);
+  }
+
   private handleError(error: HttpErrorResponse): any {
 
     console.log(error);
