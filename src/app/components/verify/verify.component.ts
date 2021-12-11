@@ -15,42 +15,43 @@ import { Router }            from '@angular/router';
  */
 export class VerifyComponent implements OnInit {
 
-  filter: string = "";
+  filter = '';
   cube: Horrocube;
   card: Horrocard;
-  isLoading: boolean = false;
-  verificationFailed: boolean = false;
+  isLoading = false;
+  verificationFailed = false;
 
-  constructor(private api: ApiService,private router: Router) { }
+  constructor(private api: ApiService, private router: Router) { }
 
   ngOnInit(): void {
   }
 
   searchPolicy(policy: string)
   {
-    let filtered = policy.replace(/[^a-z0-9]/gi,'');
+    const filtered = policy.replace(/[^a-z0-9]/gi, '');
 
-    if (filtered === null || filtered === undefined || filtered === "")
+    if (filtered === null || filtered === undefined || filtered === '') {
       return;
+    }
 
     this.filter = filtered;
     this.isLoading = true;
   }
 
   onSuccess(res)
-  {  
+  {
     console.log(res);
     this.isLoading = false;
     if (res.result === false)
-    {  
+    {
       this.verificationFailed = true;
       return;
     }
     this.verificationFailed = false;
     this.cube = res.horrocube;
     this.card = res.card;
-  } 
-  
+  }
+
   goToDetail(cube)
   {
     this.api.setCurrentCube(cube);

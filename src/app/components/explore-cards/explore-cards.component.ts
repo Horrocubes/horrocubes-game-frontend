@@ -14,48 +14,49 @@ import { Router }            from '@angular/router';
  */
 export class ExploreCardsComponent implements OnInit {
 
-  public cards: Horrocard[] = [];  
-  page: number = 0; 
-  isLoading: boolean =  true;
-  totalPages: number = 0;
-  loadingPage: boolean = false;
-  filter: string = "";
+  public cards: Horrocard[] = [];
+  page = 0;
+  isLoading =  true;
+  totalPages = 0;
+  loadingPage = false;
+  filter = '';
   constructor(private api: ApiService, private router: Router) { }
 
   ngOnInit(): void
   {
-    this.getCards(""); 
+    this.getCards('');
   }
 
-  // To get image data from api  
-  getCards(filter: string) {  
-    this.api.getMintedCards(this.page, 8, filter).subscribe((res) => this.onSuccess(res));  
-  }  
-  
-  // When we got data on a success  
-  onSuccess(res) {  
+  // To get image data from api
+  getCards(filter: string) {
+    this.api.getMintedCards(this.page, 8, filter).subscribe((res) => this.onSuccess(res));
+  }
+
+  // When we got data on a success
+  onSuccess(res) {
     if (res != undefined)
-    {  
+    {
       this.totalPages = res.totalPages;
       res.horrocards.forEach(item =>
-      {  
-        this.cards.push(item);  
-      });  
+      {
+        this.cards.push(item);
+      });
     }
     this.loadingPage = false;
     this.isLoading = false;
-  }  
-  
-  // When scroll down the screen  
-  onScroll()  
-  {  
-    if (this.totalPages === this.page)
-      return;
+  }
 
-    this.page = this.page + 1;  
+  // When scroll down the screen
+  onScroll()
+  {
+    if (this.totalPages === this.page) {
+      return;
+    }
+
+    this.page = this.page + 1;
     this.loadingPage = true;
-    this.getCards(this.filter);  
-  } 
+    this.getCards(this.filter);
+  }
 
   goToDetail(card)
   {
@@ -70,7 +71,7 @@ export class ExploreCardsComponent implements OnInit {
 
   searchCube(number: string)
   {
-    this.page = 0;  
+    this.page = 0;
     this.isLoading = true;
     this.cards = [];
     this.filter = number;

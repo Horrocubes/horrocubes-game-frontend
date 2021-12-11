@@ -14,8 +14,8 @@ export class FooterComponent implements OnInit {
   @Input() footerVariant: string;
   @Input() hideFooter: boolean;
 
-  //Get Year
-  year = new Date().getFullYear()
+  // Get Year
+  year = new Date().getFullYear();
 
   constructor() { }
 
@@ -23,9 +23,9 @@ export class FooterComponent implements OnInit {
   }
 
   scrollToAbout() {
-    let element = document.getElementById("about");
-    
-      if(element) {
+    const element = document.getElementById('about');
+
+    if (element) {
         element.scrollIntoView(); // scroll to a particular element
       }
      }

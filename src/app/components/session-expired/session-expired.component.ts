@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from "@angular/router";
-import { ActivatedRoute } from '@angular/router'
+import { Router, NavigationEnd } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'session-expired.',
   templateUrl: './session-expired.component.html',
@@ -12,12 +12,12 @@ import { ActivatedRoute } from '@angular/router'
  */
 export class SessionExpiredComponent implements OnInit {
 
-  id: string
+  id: string;
 
   constructor(private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id')
+    this.id = this.route.snapshot.paramMap.get('id');
   }
 
 }

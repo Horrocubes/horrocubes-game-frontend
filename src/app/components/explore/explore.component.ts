@@ -14,18 +14,18 @@ import { Router }            from '@angular/router';
  */
 export class ExploreComponent implements OnInit {
 
-  public cubes: Horrocube[] = [];  
-  page: number = 0; 
-  isLoading: boolean =  true;
-  totalPages: number = 0;
-  loadingPage: boolean = false;
-  filter: string = "";
-  minted: number = -1; 
+  public cubes: Horrocube[] = [];
+  page = 0;
+  isLoading =  true;
+  totalPages = 0;
+  loadingPage = false;
+  filter = '';
+  minted = -1;
   constructor(private api: ApiService, private router: Router) { }
 
   ngOnInit(): void
   {
-    this.getCubes(""); 
+    this.getCubes('');
 
     this.api.getMintedCount().subscribe((minted: number) =>
     {
@@ -33,35 +33,36 @@ export class ExploreComponent implements OnInit {
     });
   }
 
-  // To get image data from api  
-  getCubes(filter: string) {  
-    this.api.getMintedCubes(this.page, 8, filter).subscribe((res) => this.onSuccess(res));  
-  }  
-  
-  // When we got data on a success  
-  onSuccess(res) {  
+  // To get image data from api
+  getCubes(filter: string) {
+    this.api.getMintedCubes(this.page, 8, filter).subscribe((res) => this.onSuccess(res));
+  }
+
+  // When we got data on a success
+  onSuccess(res) {
     if (res != undefined)
-    {  
+    {
       this.totalPages = res.totalPages;
       res.horrocubes.forEach(item =>
-      {  
-        this.cubes.push(item);  
-      });  
+      {
+        this.cubes.push(item);
+      });
     }
     this.loadingPage = false;
     this.isLoading = false;
-  }  
-  
-  // When scroll down the screen  
-  onScroll()  
-  {  
-    if (this.totalPages === this.page)
-      return;
+  }
 
-    this.page = this.page + 1;  
+  // When scroll down the screen
+  onScroll()
+  {
+    if (this.totalPages === this.page) {
+      return;
+    }
+
+    this.page = this.page + 1;
     this.loadingPage = true;
-    this.getCubes(this.filter);  
-  } 
+    this.getCubes(this.filter);
+  }
 
   goToDetail(cube)
   {
@@ -76,7 +77,7 @@ export class ExploreComponent implements OnInit {
 
   searchCube(number: string)
   {
-    this.page = 0;  
+    this.page = 0;
     this.isLoading = true;
     this.cubes = [];
     this.filter = number;

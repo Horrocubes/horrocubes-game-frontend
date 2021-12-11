@@ -22,25 +22,27 @@ export class GetOneComponent implements OnInit {
 
   @ViewChild('ModalContent', { static: false })
   private _content;
-  _session : Session;
-  _amount : Number;
+  _session: Session;
+  _amount: Number;
   _horrocube: Horrocube;
-  _timeLeft: number = 1200;
+  _timeLeft = 1200;
   _interval;
   _isLoading = true;
-  _pollingData: any;  
+  _pollingData: any;
   _accountFunded = false;
 
   ngOnInit(): void
   {
-    if (window == null || window.navigator == null)
+    if (window == null || window.navigator == null) {
       return;
+    }
 
       // We dont want the crawlers to trigger a new sesion on the server.
-    if (this.detectRobot(window.navigator.userAgent))
+    if (this.detectRobot(window.navigator.userAgent)) {
       return;
-    
-      this.api.createSession().subscribe((session: Session) =>
+    }
+
+    this.api.createSession().subscribe((session: Session) =>
     {
         this._session = session;
 
@@ -52,12 +54,12 @@ export class GetOneComponent implements OnInit {
 
             this._pollingData = interval(5000).pipe(
               switchMap(() => this.api.getAccount(this._session.key))).subscribe((data) => {
-                 this._session = data; 
+                 this._session = data;
                  console.log(this._session);
                  if ((this._session.address.balance / 1000000) === this._amount)
                  {
                   this._pollingData.unsubscribe();
-                  this.api.submitMintTransaction(this._session.key).subscribe(()=>
+                  this.api.submitMintTransaction(this._session.key).subscribe(() =>
                   {
                     this.openModal(this._content);
                     this._accountFunded =  true;
@@ -66,7 +68,7 @@ export class GetOneComponent implements OnInit {
                       switchMap(() => this.api.trackTransaction(this._session.key))).subscribe((data) => {
                         console.log(data);
                         this._horrocube = data;
-                        if (this._horrocube.assetName !== "")
+                        if (this._horrocube.assetName !== '')
                         {
                           this._pollingData.unsubscribe();
                           this._horrocube.newlyMinted = true;
@@ -85,15 +87,15 @@ export class GetOneComponent implements OnInit {
 
   startTimer() {
     this._interval = setInterval(() => {
-      if(this._timeLeft > 0) {
+      if (this._timeLeft > 0) {
         this._timeLeft--;
       } else {
         clearInterval(this._interval);
         this.router.navigate(['/session-expired', this._session.key]);
       }
-    },1000)
+    }, 1000);
   }
-  
+
   copyToClipboard(item) {
     document.addEventListener('copy', (e: ClipboardEvent) => {
       e.clipboardData.setData('text/plain', (item));
@@ -104,8 +106,9 @@ export class GetOneComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    if (this._pollingData)
+    if (this._pollingData) {
       this._pollingData.unsubscribe();
+    }
 }
 
 openModal(content) {
@@ -119,19 +122,19 @@ closeModal() {
 detectRobot(userAgent: string)
 {
   const robots = new RegExp(([
-    /bot/,/spider/,/crawl/,                               // GENERAL TERMS
-    /APIs-Google/,/AdsBot/,/Googlebot/,                   // GOOGLE ROBOTS
-    /mediapartners/,/Google Favicon/,
-    /FeedFetcher/,/Google-Read-Aloud/,
-    /DuplexWeb-Google/,/googleweblight/,
-    /bing/,/yandex/,/baidu/,/duckduck/,/yahoo/,           // OTHER ENGINES
-    /ecosia/,/ia_archiver/,
-    /facebook/,/instagram/,/pinterest/,/reddit/,          // SOCIAL MEDIA
-    /slack/,/twitter/,/whatsapp/,/youtube/,
+    /bot/, /spider/, /crawl/,                               // GENERAL TERMS
+    /APIs-Google/, /AdsBot/, /Googlebot/,                   // GOOGLE ROBOTS
+    /mediapartners/, /Google Favicon/,
+    /FeedFetcher/, /Google-Read-Aloud/,
+    /DuplexWeb-Google/, /googleweblight/,
+    /bing/, /yandex/, /baidu/, /duckduck/, /yahoo/,           // OTHER ENGINES
+    /ecosia/, /ia_archiver/,
+    /facebook/, /instagram/, /pinterest/, /reddit/,          // SOCIAL MEDIA
+    /slack/, /twitter/, /whatsapp/, /youtube/,
     /semrush/,                                            // OTHER
-  ] as RegExp[]).map((r) => r.source).join("|"),"i");     // BUILD REGEXP + "i" FLAG
+  ] as RegExp[]).map((r) => r.source).join('|'), 'i');     // BUILD REGEXP + "i" FLAG
 
   return robots.test(userAgent);
-};
+}
 
 }

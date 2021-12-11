@@ -1,6 +1,6 @@
 import { Cardano } from './Cardano';
 
- export class CardanoRef
+export class CardanoRef
  {
     public cardano: Cardano;
  }

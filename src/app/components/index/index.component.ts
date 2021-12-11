@@ -1,4 +1,4 @@
-import {Value } from '../../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
+import {Value } from '../../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib';
 import { Component, OnInit } from '@angular/core';
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { CardanoRef } from '../../models/CardanoRef';
@@ -9,7 +9,7 @@ import { Horrocard } from '../../models/Horrocard';
 import { CardanoService } from '../../cardano.service';
 import { StoryService } from '../../story.service';
 import { DatumMappings } from '../../data/DatumMappings';
-import { Router, NavigationEnd } from "@angular/router";
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-index',
@@ -24,37 +24,38 @@ export class IndexComponent implements OnInit {
 
   cubes: Horrocube[] = [];
   cards: Horrocard[] = [];
-  isLoading: boolean =  true;
-  isConnected: boolean =  false;
-  isNamiWalletPresent: boolean = false;
+  isLoading =  true;
+  isConnected =  false;
+  isNamiWalletPresent = false;
   constructor(private _cardano: CardanoService, private _story: StoryService, private router: Router) {}
 
   ngOnInit(): void
   {
     if (!this._cardano.isWalletInjected())
     {
-      console.log("Missing Nami Wallet");
+      console.log('Missing Nami Wallet');
       return;
     }
 
     this.cubes = [];
     this.isNamiWalletPresent = true;
 
-    this._cardano.getConnectionState().subscribe(x => 
+    this._cardano.getConnectionState().subscribe(x =>
     {
       this.isConnected = x;
 
       if (this.isConnected)
       {
-        this._cardano.getHorrocubes().subscribe(asset => 
+        this._cardano.getHorrocubes().subscribe(asset =>
           {
-            
+
             if (asset.stories.length > 0)
             {
-              for (let i =0; i < asset.stories.length; ++i)
+              for (let i = 0; i < asset.stories.length; ++i)
               {
-                if (asset.stories[i].eUtxoId === null || asset.stories[i].eUtxoId.datumhash === null)
+                if (asset.stories[i].eUtxoId === null || asset.stories[i].eUtxoId.datumhash === null) {
                   continue;
+                }
 
                 asset.stories[i].currentLevel = DatumMappings.getLevelFromDatum(asset.stories[i].eUtxoId.content.datumhash);
               }
@@ -66,7 +67,7 @@ export class IndexComponent implements OnInit {
             this.isLoading = false;
           });
 
-          this._cardano.getHorrocards().subscribe(asset => 
+        this._cardano.getHorrocards().subscribe(asset =>
             {
               this.cards.push(asset);
               this.cards.sort((a, b) => a.assetName.localeCompare(b.assetName));
@@ -85,8 +86,9 @@ export class IndexComponent implements OnInit {
 
   parseCardAssetName(name: string)
   {
-    if (name.includes("Horrocard"))
-      return name.substr(name.length - 5, 5); 
+    if (name.includes('Horrocard')) {
+      return name.substr(name.length - 5, 5);
+    }
 
     return name.substr(name.length - 14, 5);
   }

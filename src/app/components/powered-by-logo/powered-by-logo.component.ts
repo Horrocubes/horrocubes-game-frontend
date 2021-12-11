@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 interface client {
   image: string;
-};
+}
 
 @Component({
   selector: 'powered-by-logo',

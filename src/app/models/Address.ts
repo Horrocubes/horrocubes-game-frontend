@@ -4,7 +4,7 @@
  export class Address
  {
      constructor(
-         public address: String = "",
+         public address: String = '',
          public balance: number = 0)
      {
      }

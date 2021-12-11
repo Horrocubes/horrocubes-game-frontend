@@ -6,11 +6,11 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { ApiService }        from '../../api.service';
 import { Level } from 'src/app/models/Level';
 import { StoryService } from '../../story.service';
-import { Sha256 } from '../../vendors/sha256'
+import { Sha256 } from '../../vendors/sha256';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ViewChild } from '@angular/core';
 import { CardanoService } from '../../cardano.service';
-import { Buffer } from "buffer";
+import { Buffer } from 'buffer';
 import { DAppConnector } from 'src/app/cardano/DAppConnector';
 
 @Component({
@@ -24,9 +24,10 @@ import { DAppConnector } from 'src/app/cardano/DAppConnector';
  */
 export class StoryComponent implements OnInit {
 
-  _levels:Level[] = [];
-  _currentLevel:Level = new Level();
+  _levels: Level[] = [];
+  _currentLevel: Level = new Level();
   _currentCube: Horrocube;
+  _interval;
 
   @ViewChild('ModalContentCorrect', { static: false })
   private _rightContent;
@@ -34,7 +35,7 @@ export class StoryComponent implements OnInit {
   @ViewChild('ModalContentIncorrect', { static: false })
   private _wrongContent;
 
-  constructor(private _cardano: CardanoService, private api: ApiService, private router:Router, private story: StoryService, private modalService: NgbModal) { }
+  constructor(private _cardano: CardanoService, private api: ApiService, private router: Router, private story: StoryService, private modalService: NgbModal) { }
 
   ngOnInit(): void
   {
@@ -42,8 +43,9 @@ export class StoryComponent implements OnInit {
     this.story.getAllLevels().subscribe((x) => this._levels = x);
     this._currentCube = this.story.getcurrentCube();
 
-    if (this._currentCube == null)
+    if (this._currentCube == null) {
     this.router.navigate(['/']);
+    }
     console.log(this._currentCube);
   }
 
@@ -54,7 +56,7 @@ export class StoryComponent implements OnInit {
 
   getLevelTrackerSegmentWidth()
   {
-    return (100.0 / (this._levels.length)) + "%";
+    return (100.0 / (this._levels.length)) + '%';
   }
 
   getCurrentContent()
@@ -65,25 +67,25 @@ export class StoryComponent implements OnInit {
   openModal(content) {
     this.modalService.open(content, { size: 'lg', windowClass: 'modal-holder', centered: true });
   }
-  
+
   closeModal() {
     this.modalService.dismissAll();
   }
-  fromHex = (hex) => Buffer.from(hex, "hex");
+  fromHex = (hex) => Buffer.from(hex, 'hex');
   toHex(bytes: any)
   {
-    return Buffer.from(bytes).toString("hex");
-  } 
+    return Buffer.from(bytes).toString('hex');
+  }
 
   fromAscii(hex)
   {
-    return Buffer.from(hex).toString("hex");
+    return Buffer.from(hex).toString('hex');
   }
 
   async onClick(value)
   {
-    let firstPass = Sha256.hash(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
-    let secondPass = Sha256.hash(firstPass, {messageFormat: 'hex-bytes'});
+    const firstPass = Sha256.hash(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
+    const secondPass = Sha256.hash(firstPass, {messageFormat: 'hex-bytes'});
 
     console.log(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
     console.log(firstPass);
@@ -91,20 +93,40 @@ export class StoryComponent implements OnInit {
 
     if (secondPass === this._currentCube.stories[0].levels[this._currentCube.stories[0].currentLevel].answerHash)
     {
-      let currDatumValue = this._currentCube.stories[0].currentLevel;
-      let nexDatValue    = currDatumValue + 1;
+      const currDatumValue = this._currentCube.stories[0].currentLevel;
+      const nexDatValue    = currDatumValue + 1;
 
       this.openModal(this._rightContent);
       this._currentCube.stories[0].currentLevel += 1;
 
-      let connect = new DAppConnector();
+      const connect = new DAppConnector();
 
-      let tx = await connect.buildTransaction(this._currentCube, this._cardano, currDatumValue, nexDatValue, firstPass);
-      console.log(connect.sendTransaction(this._cardano, tx));
+      const tx = await connect.buildTransaction(this._currentCube, this._cardano, currDatumValue, nexDatValue, firstPass);
+      let txId = await connect.sendTransaction(this._cardano, tx);
+
+      this.startTimer(txId);
     }
     else
     {
       this.openModal(this._wrongContent);
     }
+  }
+
+  startTimer(txId)
+  {
+    console.log(txId);
+    this._interval = setInterval(() => {
+      this.api.trackTransaction(txId).subscribe((isConfirmed) =>
+      {
+        console.log(txId);
+        console.log(isConfirmed);
+        if (isConfirmed)
+        {
+          clearInterval(this._interval);
+          this.router.navigate(['/']);
+          this.closeModal();
+        }
+      });
+    }, 5000);
   }
 }
