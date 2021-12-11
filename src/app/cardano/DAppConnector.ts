@@ -21,7 +21,6 @@
 
 // IMPORTS ************************************************************************************************************/
 
-import { Value } from "../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib";
 import * as EmurgoSerialization from '../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
 import { BlockchainParameters } from "../data/BlockchainParameters"
 import { DatumMappings } from "../data/DatumMappings"
@@ -320,6 +319,11 @@ export class DAppConnector
     return txHash;
   }
 
+  /**
+   * Creates the transaction builder object.
+   * 
+   * @returns The transaction builder.
+   */
   createTranscationBuilder()
   {
     let protocolParameters = BlockchainParameters.getProtocolParameters();
@@ -346,7 +350,13 @@ export class DAppConnector
   }
 
   /**
-   * @private
+   * Creates a new eUTXO.
+   * 
+   * @param address The target address.
+   * @param value The value to be locked on the eUTXO.
+   * @param datum The datum sitting at the eUTXO.
+   * 
+   * @return The new output.
    */
   createOutput(address, value, datum)
   {
@@ -365,15 +375,17 @@ export class DAppConnector
     const output = EmurgoSerialization.TransactionOutput.new(address, v);
 
     if (datum)
-    {
       output.set_data_hash(EmurgoSerialization.hash_plutus_data(datum));
-    }
 
     return output;
   }
 
   /**
-   * @private
+   * Sets the collatera utxo on the transaction.
+   * 
+   * @param txBuilder The transaction builder.
+   * @param utxos The utxos to be used as collateral.
+   * 
    */
   setCollateral(txBuilder, utxos)
   {
@@ -385,26 +397,13 @@ export class DAppConnector
     txBuilder.set_collateral(inputs);
   }
 
-  hex2a(hexx)
-  {
-    var hex = hexx.toString(); //force conversion
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2)
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    return str;
-  }
-
-  a2Hex(str)
-  {
-    var arr1 = [];
-    for (var n = 0, l = str.length; n < l; n++)
-    {
-      var hex = Number(str.charCodeAt(n)).toString(16);
-      arr1.push(hex);
-    }
-    return arr1.join('');
-  }
-
+  /**
+   * Creates the PlutusScript from the serialized CBOR string.
+   * 
+   * @param contract The contract serialized as a CBOR string.
+   * 
+   * @returns Gets the PlutusScript.
+   */
   getContract(contract)
   {
 
@@ -413,12 +412,25 @@ export class DAppConnector
     return scripts;
   };
 
+  /**
+   * Builds a Address instance from the bech32 encoded address.
+   * 
+   * @param address The bech32 encoded address.
+   * 
+   * @returns The contract address object.
+   */
   getContractAddress(address)
   {
     return EmurgoSerialization.Address.from_bech32(address);
   }
 
-  // Datums
+  /**
+   * Gets a datum object from the given value.
+   * 
+   * @param level The current leve to be encoded on the Datum.
+   * 
+   * @returns The datum object.
+   */
   getDatum(level: string)
   {
     let fieldsInner = EmurgoSerialization.PlutusList.new();
@@ -433,6 +445,14 @@ export class DAppConnector
     );
   };
 
+  /**
+   * Gets the redeemer object from the given values.
+   * 
+   * @param level The level we are trying to clear.
+   * @param answer the answer.
+   * 
+   * @returns The redeemer object.
+   */
   getRedeemer(level: string, answer: string)
   {
     const fieldsInner = EmurgoSerialization.PlutusList.new();
