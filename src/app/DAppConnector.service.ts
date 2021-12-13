@@ -1,17 +1,17 @@
 /**
- * @file TransactionBuilder.ts
+ * @file DAppConnectorService.ts
  *
  * @author Angel Castillo <angel.castillo@horrocubes.io>
  * @date   Dec 10 2021
  *
- * @copyright Copyright 2021 Horrocubes
- * 
+ * @copyright Copyright 2021 Horrocubes.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,17 +19,29 @@
  * limitations under the License.
  */
 
-// IMPORTS ************************************************************************************************************/
+/* IMPORTS *******************************************************************/
 
-import * as EmurgoSerialization from '../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
-import { BlockchainParameters } from "../data/BlockchainParameters"
-import { DatumMappings } from "../data/DatumMappings"
-import { BetaStoryOutputs } from "../data/BetaStoryOutputs"
-import CoinSelection from '../vendors/coinSelection.js'
-import * as blake from "blake2b"
-import { CardanoService } from "../cardano.service";
-import { Horrocube } from "../models/Horrocube";
-import { Buffer } from "buffer";
+import { Injectable }                              from '@angular/core';
+import { HttpClient, HttpErrorResponse }           from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, concatMap, mergeMap, map }    from 'rxjs/internal/operators';
+import { environment }                             from '../environments/environment';
+import { Horrocube }                               from './models/Horrocube';
+import { Story }                                   from './models/Story';
+import { CardanoRef }                              from './models/CardanoRef';
+import { Value }                                   from './vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib';
+import { defer }                                   from 'rxjs';
+import { tap }                                     from 'rxjs/operators';
+import { Buffer }                                  from 'buffer';
+import { Level }                                   from './models/Level';
+import { Policies }                                from './data/Policies';
+import { Collectible }                             from './models/Collectible';
+import { BlockchainParameters }                    from "./data/BlockchainParameters"
+import { DatumMappings }                           from "./data/DatumMappings"
+import { BetaStoryOutputs }                        from "./data/BetaStoryOutputs"
+import CoinSelection                               from './vendors/coinSelection.js'
+import * as blake                                  from "blake2b"
+import * as EmurgoSerialization                    from './vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib'
 
 // CONSTANTS **********************************************************************************************************/
 
@@ -44,17 +56,24 @@ const CPU_BUDGET:        string = "3500000000";
 
 // EXPORTS ************************************************************************************************************/
 
+@Injectable(
+{
+  providedIn: 'root'
+})
+
 /**
- * @summary Helper class for building, signing and sending transactions to the blockchain.
+ * @summary Service for signing and sending transactions to the blockchain.
  *
  * @remark Most of the code in this class was taken from https://github.com/Berry-Pool/spacebudz.
  */
-export class DAppConnector
+export class DAppConnectorService
 {
+  private _isConnected$: BehaviorSubject < boolean > = new BehaviorSubject < boolean > (false);
+
   /**
    * Initiaize a new instance of the DAppConnector class.
    */
-  constructor()
+  constructor(private _cardanoRef: CardanoRef, private httpClient: HttpClient)
   {
     CoinSelection.setProtocolParameters(
       BlockchainParameters.getProtocolParameters().minUtxo,
@@ -62,6 +81,275 @@ export class DAppConnector
       BlockchainParameters.getProtocolParameters().linearFee.minFeeB,
       BlockchainParameters.getProtocolParameters().maxTxSize.toString()
     );
+  }
+
+  // RESTFUL CALLS ******************************************************************************************************/
+
+  /**
+   * Tracks the state of a transaction.
+   * 
+   * @param id The transaction id.
+   * 
+   * @returns True if the transaction has been confirmed; otherwise; false.
+   */
+  trackTransaction(id: String): Observable < Horrocube >
+  {
+    return this.httpClient.get < any > (environment.apiBaseUrl + 'isTransactionVerified/' + id)
+      .pipe(catchError(this.handleError))
+      .pipe(map(value => value.confirmed));
+  }
+
+  /**
+   * Gets the list of stories for the given Horrocube.
+   * 
+   * @param cube The horrocube.
+   * 
+   * @returns The stories.
+   */
+  getStories(cube: string): Observable < any >
+  {
+    return this.httpClient.get < any > (environment.apiBaseUrl + 'getStories/' + cube);
+  }
+
+  /**
+   * Gets the asset metadata.
+   * 
+   * @param policyId The policy ID of the asset.
+   * @param tokenName The token name of the asset.
+   * 
+   * @returns The metadata.
+   */
+  getAssetDetail(policyId, tokenName): Observable < any >
+  {
+    return this.httpClient.get < any > (environment.apiBaseUrl + 'getAssetData/' + policyId + '/' + tokenName);
+  }
+
+  // WALLET FUNCTIONS ***************************************************************************************************/
+
+  /**
+   * Gets whether the user is connected to the wallet.
+   * 
+   * @returns Observable with the wallet connection state.
+   */
+  getConnectionState()
+  {
+    return this._isConnected$;
+  }
+
+  /**
+   * Request wallet access to the user.
+   */
+  requestWalletAccess()
+  {
+    defer(() => this._cardanoRef.cardano.enable()).pipe(tap((isWalletEnabled) =>
+    {
+      this._isConnected$.next(isWalletEnabled);
+    })).subscribe();
+  }
+
+  /**
+   * Gets whether the wallet is connected.
+   * 
+   * @returns true if the wallet is connected; otherwise; false.
+   */
+  isWalletConnected()
+  {
+    return defer(() => this._cardanoRef.cardano.isEnabled()).pipe(tap((isWalletEnabled) =>
+    {
+      this._isConnected$.next(isWalletEnabled);
+    }));
+  }
+
+  /**
+   * Gets whether the Nami wallet is injected in the browser.
+   * 
+   * @returns true if the wallet is injected; otherwise; false.
+   */
+  isWalletInjected()
+  {
+    return this._cardanoRef.cardano !== undefined;
+  }
+
+  /**
+   * Gets the wallet instance.
+   * 
+   * @returns The wallet instance
+   */
+  getWalletInstance()
+  {
+    return this._cardanoRef.cardano;
+  }
+
+  /**
+   * Gets the Horrocubes on the current wallet.
+   * 
+   * @returns An observable with the Horrocubes.
+   */
+  getHorrocubes(): Observable < any >
+  {
+    const walletObservable$ = defer(() => this._cardanoRef.cardano.getBalance());
+
+    return walletObservable$.pipe(map((result) =>
+      {
+        const val: Value = Value.from_bytes(Buffer.from(result, 'hex'));
+
+        let assets = this.valueToAssets(val);
+
+
+        assets = assets.filter((x) => x.unit !== ADA_LOVELACE && Policies.isValidCube(x.policyId));
+        return assets;
+      }))
+      .pipe(concatMap(x => x))
+      .pipe(mergeMap(x => this.getStories(x.policyId + '.' + x.tokenName)))
+      .pipe(map(x => this.createHorrocube(x)));
+  }
+
+  /**
+   * Gets all Horrocubes collectables from the wallet.
+   * 
+   * @returns Observable with the collectables.
+   */
+  getCollectibles()
+  {
+    const walletObservable$ = defer(() => this._cardanoRef.cardano.getBalance());
+
+    return walletObservable$.pipe(map((result) =>
+      {
+        const val: Value = Value.from_bytes(Buffer.from(result, 'hex'));
+
+        let assets = this.valueToAssets(val);
+
+        assets = assets.filter((x) => x.unit !== ADA_LOVELACE && Policies.isValidCollectible(x.policyId));
+
+        return assets;
+      }))
+      .pipe(concatMap(x => x))
+      .pipe(mergeMap(x => this.getAssetDetail(x.policyId, x.tokenName)))
+      .pipe(map(x =>
+      {
+        if (x === null)
+          return x;
+
+        return new Collectible(x.policyId, x.assetName, x.name, this.getCachedUrl(x.image));
+      }));
+  }
+
+  /**
+   * Creates a horrocube insntance from an asset.
+   * 
+   * @param asset The asset.
+   * 
+   * @returns The Horrocube.
+   */
+  createHorrocube(asset)
+  {
+    const cube: Horrocube = new Horrocube(
+      asset.cube.assetName,
+      asset.cube.name,
+      asset.cube.core,
+      asset.cube.aspect,
+      asset.cube.mechanism,
+      asset.cube.commuter,
+      asset.cube.supports,
+      asset.cube.ornament,
+      asset.cube.background,
+      asset.cube.firstCard,
+      asset.cube.secondCard,
+      asset.cube.lastCard,
+      this.getCachedUrl(asset.cube.persistentImageLink),
+      asset.cube.persistentImageLink,
+      '',
+      '',
+      asset.cube.policyId,
+      '',
+      '');
+
+    for (let i = 0; i < asset.stories.length; ++i)
+    {
+      const story: Story = new Story();
+
+      const metadata = JSON.parse(asset.stories[i].metadata);
+
+      story.assetId = asset.stories[i].policyId;
+      story.currentLevel = 0;
+      story.image = this.getCachedUrl(metadata.image);
+      story.name = metadata.name;
+      story.scriptAddress = asset.stories[i].scriptAddress;
+
+      if (asset.utxos[i] === undefined)
+      {
+        continue;
+      }
+
+      story.eUtxoId = JSON.parse(asset.utxos[i]);
+      story.plutusScript = JSON.parse(asset.stories[i].plutusScript);
+
+      metadata.description.forEach(segment =>
+      {
+        story.description += segment;
+      });
+
+      const lvls: Level[] = [];
+      metadata.levels.forEach(level =>
+      {
+        const lvl: Level = new Level(level.title, level.content, [], level.answer);
+        lvls.push(lvl);
+      });
+
+      story.levels = lvls;
+
+      if (Object.keys(story.eUtxoId).length > 0)
+      {
+        cube.stories.push(story);
+      }
+    }
+
+    return cube;
+  }
+
+  /**
+   * Creates an story object from an asset object.
+   * 
+   * @param asset The asset object.
+   * 
+   * @returns The story object.
+   */
+  createStory(asset)
+  {
+    const cube: Horrocube = new Horrocube(
+      this.hexToAscii(asset.asset_name),
+      asset.onchain_metadata.name,
+      asset.onchain_metadata.properties.core,
+      asset.onchain_metadata.properties.aspect,
+      asset.onchain_metadata.properties.mechanism,
+      asset.onchain_metadata.properties.commuter,
+      asset.onchain_metadata.properties.supports,
+      asset.onchain_metadata.properties.ornament,
+      asset.onchain_metadata.properties.background,
+      asset.onchain_metadata.cards[0].name,
+      asset.onchain_metadata.cards[1].name,
+      asset.onchain_metadata.cards[2].name,
+      this.getCachedUrl(asset.onchain_metadata.image),
+      asset.onchain_metadata.image,
+      '',
+      '',
+      asset.policy_id,
+      '',
+      '');
+
+    return cube;
+  }
+
+  /**
+   * Gets the cache URL from the IPFS url.
+   * 
+   * @param url The IPFS url.
+   * 
+   * @returns The cache URL.
+   */
+  getCachedUrl(url: string)
+  {
+    return 'https://storage.googleapis.com/horrocubes_small_ipfs/' + url.replace('ipfs://', '') + '.png';
   }
 
   /**
@@ -75,21 +363,21 @@ export class DAppConnector
    * 
    * @returns The transaction.
    */
-  async buildTransaction(horrocube: Horrocube, service: CardanoService, currentDatum: number, nextDatum: number, answerHash: string)
+  async buildTransaction(horrocube: Horrocube, currentDatum: number, nextDatum: number, answerHash: string)
   {
-    let redeemerObj      = this.getRedeemer(currentDatum.toString(), answerHash);
+    let redeemerObj = this.getRedeemer(currentDatum.toString(), answerHash);
     let originalDatumObj = this.getDatum(currentDatum.toString());
-    let nextDatumObj     = this.getDatum(nextDatum.toString());
+    let nextDatumObj = this.getDatum(nextDatum.toString());
 
-    const datums  = EmurgoSerialization.PlutusList.new();
+    const datums = EmurgoSerialization.PlutusList.new();
     const outputs = EmurgoSerialization.TransactionOutputs.new();
 
     let txBuilder: EmurgoSerialization.TransactionBuilder = this.createTranscationBuilder();
 
     const walletAddress = EmurgoSerialization.BaseAddress.from_address(
-      EmurgoSerialization.Address.from_bytes(this.fromHex((await service.getWalletInstance().cardano.getUsedAddresses())[0])));
+      EmurgoSerialization.Address.from_bytes(this.fromHex((await this.getWalletInstance().getUsedAddresses())[0])));
 
-    const utxos = (await service.getWalletInstance().cardano.getUtxos())
+    const utxos = (await this.getWalletInstance().getUtxos())
       .map((utxo) => EmurgoSerialization.TransactionUnspentOutput.from_bytes(this.fromHex(utxo)));
 
     if (currentDatum < MAX_PUZZLE_INDEX)
@@ -134,9 +422,13 @@ export class DAppConnector
     let plutusScript = this.getContract(horrocube.stories[0].plutusScript);
 
     const transactionWitnessSet = EmurgoSerialization.TransactionWitnessSet.new();
-    const redeemers             = EmurgoSerialization.Redeemers.new();
+    const redeemers = EmurgoSerialization.Redeemers.new();
 
-    let { input, change } = CoinSelection.randomImprove(utxos, outputs, 8, scriptUtxo ? [scriptUtxo] : []);
+    let
+    {
+      input,
+      change
+    } = CoinSelection.randomImprove(utxos, outputs, 8, scriptUtxo ? [scriptUtxo] : []);
 
     input.forEach((utxo) =>
     {
@@ -172,7 +464,7 @@ export class DAppConnector
       txBuilder.set_plutus_data(EmurgoSerialization.PlutusList.from_bytes(datums.to_bytes()));
       txBuilder.set_plutus_scripts(plutusScript);
 
-      const collateral = (await service.getWalletInstance().cardano.getCollateral()).map((utxo) =>
+      const collateral = (await this.getWalletInstance().getCollateral()).map((utxo) =>
         EmurgoSerialization.TransactionUnspentOutput.from_bytes(this.fromHex(utxo))
       );
 
@@ -202,15 +494,15 @@ export class DAppConnector
       {
         for (let j = 0; j < changeMultiAssets.len(); j++)
         {
-          const policy       = policies.get(j);
+          const policy = policies.get(j);
           const policyAssets = changeMultiAssets.get(policy);
-          const assetNames   = policyAssets.keys();
-          const assets       = EmurgoSerialization.Assets.new();
+          const assetNames = policyAssets.keys();
+          const assets = EmurgoSerialization.Assets.new();
 
           for (let k = 0; k < assetNames.len(); k++)
           {
             const policyAsset = assetNames.get(k);
-            const quantity    = policyAssets.get(policyAsset);
+            const quantity = policyAssets.get(policyAsset);
 
             assets.insert(policyAsset, quantity);
 
@@ -262,16 +554,16 @@ export class DAppConnector
       throw new Error("MAX_SIZE_REACHED");
 
     let originalRedeemers = this.toHex(redeemers.to_bytes());
-    let originalDatums    = this.toHex(datums.to_bytes());
+    let originalDatums = this.toHex(datums.to_bytes());
 
     let newDatums = originalDatums.replace(DatumMappings.getSerializationLibDatumData(currentDatum), DatumMappings.getCliDatumData(currentDatum)).replace(DatumMappings.getSerializationLibDatumData(nextDatum), DatumMappings.getCliDatumData(nextDatum));
-    let output    = new Uint8Array(32)
-    let dataX     = this.fromHex(originalRedeemers + originalDatums + BlockchainParameters.getLanguageViews());
+    let output = new Uint8Array(32)
+    let dataX = this.fromHex(originalRedeemers + originalDatums + BlockchainParameters.getLanguageViews());
 
     let originalScriptDataHash = blake(output.length).update(dataX).digest('hex');
 
     let output2 = new Uint8Array(32)
-    let dataX2  = this.fromHex(originalRedeemers + newDatums + BlockchainParameters.getLanguageViews());
+    let dataX2 = this.fromHex(originalRedeemers + newDatums + BlockchainParameters.getLanguageViews());
 
     let newDataHash = blake(output2.length).update(dataX2).digest('hex');
 
@@ -282,7 +574,7 @@ export class DAppConnector
     fixedTx = fixedTx.replace(DatumMappings.getSerializationLibDatumData(nextDatum), DatumMappings.getCliDatumData(nextDatum));
     fixedTx = fixedTx.replace(originalScriptDataHash, newDataHash);
 
-    let txVkeyWitnesses = await service.getWalletInstance().cardano.signTx(fixedTx,true);
+    let txVkeyWitnesses = await this.getWalletInstance().signTx(fixedTx, true);
     txVkeyWitnesses = EmurgoSerialization.TransactionWitnessSet.from_bytes(this.fromHex(txVkeyWitnesses));
 
     transactionWitnessSet.set_vkeys(txVkeyWitnesses.vkeys());
@@ -470,7 +762,48 @@ export class DAppConnector
     return redeemerData;
   };
 
-// INTERNALS **********************************************************************************************************/
+  // INTERNALS **********************************************************************************************************/
+
+  /**
+   * Converts a value object the assets data structure.
+   * 
+   * @param value The value object.
+   * 
+   * @returns The aassets structure.
+   */
+  private valueToAssets(value: Value)
+  {
+    const assets = [];
+    assets.push(
+    {
+      unit: ADA_LOVELACE,
+      quantity: value.coin().to_str()
+    });
+    if (value.multiasset())
+    {
+      const multiAssets = value.multiasset().keys();
+      for (let j = 0; j < multiAssets.len(); j++)
+      {
+        const policy = multiAssets.get(j);
+        const policyAssets = value.multiasset().get(policy);
+        const assetNames = policyAssets.keys();
+        for (let k = 0; k < assetNames.len(); k++)
+        {
+          const policyAsset = assetNames.get(k);
+          const quantity = policyAssets.get(policyAsset);
+          const asset =
+            assets.push(
+            {
+              policyId: Buffer.from(policy.to_bytes()).toString('hex'),
+              tokenName: Buffer.from(policyAsset.name()).toString(),
+              unit: Buffer.from(policy.to_bytes()).toString('hex') + Buffer.from(policyAsset.name()).toString('hex'),
+              quantity: quantity.to_str(),
+            });
+        }
+      }
+    }
+    return assets;
+  }
 
   /**
    * Converts a hexadecimal string into a byte buffer.
@@ -479,41 +812,99 @@ export class DAppConnector
    * 
    * @returns The byte array.
    */
-   fromHex(hex)
-   {
-     return Buffer.from(hex, "hex");
-   }
- 
-   /**
-    * Converts a byte array to a hex string.
-    * 
-    * @param bytes The bytes to be encoded into a hex string.
-    * 
-    * @returns The byte array.
-    */
-   toHex(bytes: any)
-   {
-     return Buffer.from(bytes).toString("hex");
-   }
- 
-   /**
-    * Parse all keys and values from a javascript object.
-    * 
-    * @param obj The object to be parsed.
-    * @param parse The parsing callback.
-    */
-   parseObjectProperties(obj, parse)
-   {
-       for (var k in obj)
-       {
-       if (typeof obj[k] === 'object' && obj[k] !== null)
-       {
-           this.parseObjectProperties(obj[k], parse)
-       }
-       else if (obj.hasOwnProperty(k))
-       {
-           parse(k, obj[k])
-       }
-       }
-   }
+  private fromHex(hex)
+  {
+    return Buffer.from(hex, "hex");
+  }
+
+  /**
+   * Converts a byte array to a hex string.
+   * 
+   * @param bytes The bytes to be encoded into a hex string.
+   * 
+   * @returns The byte array.
+   */
+  private toHex(bytes: any)
+  {
+    return Buffer.from(bytes).toString("hex");
+  }
+
+  /**
+   * Converts from hex to ASCII.
+   * 
+   * @param hex The HEX string to be converted to ASCII.
+   * 
+   * @returns The ASCII string.
+   */
+  private hexToAscii(hex)
+  {
+    const hexString = hex.toString();
+    let str = '';
+
+    for (let i = 0; i < hexString.length; i += 2)
+      str += String.fromCharCode(parseInt(hexString.substr(i, 2), 16));
+
+    return str;
+  }
+
+  /**
+   * Converts from ASCII to hex.
+   * 
+   * @param message The ASCII string to be encoded.
+   * 
+   * @returns The HEX encoded string.
+   */
+  private asciiToHex(message: string)
+  {
+    const hexArray = [];
+
+    for (let n = 0, l = message.length; n < l; n++)
+    {
+      const hexChar = Number(message.charCodeAt(n)).toString(16);
+      hexArray.push(hexChar);
+    }
+
+    return hexArray.join('');
+  }
+
+  /**
+   * Parse all keys and values from a javascript object.
+   * 
+   * @param obj The object to be parsed.
+   * @param parse The parsing callback.
+   */
+  private parseObjectProperties(obj, parse)
+  {
+    for (var k in obj)
+    {
+      if (typeof obj[k] === 'object' && obj[k] !== null)
+      {
+        this.parseObjectProperties(obj[k], parse)
+      }
+      else if (obj.hasOwnProperty(k))
+      {
+        parse(k, obj[k])
+      }
+    }
+  }
+
+  /**
+   * Generic errorn handler for HTTP calls.
+   * 
+   * @param error The error.
+   * 
+   * @returns The error handler.
+   */
+  private handleError(error: HttpErrorResponse): any
+  {
+    if (error.error instanceof ErrorEvent)
+    {
+      console.error('An error occurred:', error.error.message);
+    }
+    else
+    {
+      console.error(`Backend returned code ${error.status}, ` + `body was: ${error.error.msg}`);
+    }
+    return throwError(`${error.error.msg}`);
+  }
 }

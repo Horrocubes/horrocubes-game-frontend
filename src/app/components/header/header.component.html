@@ -1,22 +1,11 @@
-<!-- Navbar STart -->
-<header id="topnav" class="defaultscroll sticky" class="navClass nav-sticky"
-  [ngClass]="{'tagline-height': sliderTopbar == true}">
-  <div class="container">
-    <!-- Logo container-->
-    <div>
-      <a class="logo" routerLink="/index">
-        <img src="https://storage.googleapis.com/horrocubes_web_assets/horrologo.png" class="logo-dark-mode" height="80" alt=""> <span style="font-family: UnderWorld; font-size: 12px;"><span style="font-family: UnderWorld; font-size: 16px;">H</span>ORROCUBES</span>
-      </a>
-    </div>
-
-    <span *ngIf="!buttonList && !isdeveloper && !shopPages">
+<header id="topnav" class="defaultscroll sticky" class="navClass nav-sticky">
+	<div class="container">
+		<div>
+			<a class="logo" routerLink="/index"> <img src="https://storage.googleapis.com/horrocubes_web_assets/horrologo.png" class="logo-dark-mode" height="80" alt=""> <span style="font-family: UnderWorld; font-size: 12px;"><span style="font-family: UnderWorld; font-size: 16px;">H</span>ORROCUBES</span>
+			</a>
+		</div> <span *ngIf="!buttonList && !isdeveloper && !shopPages">
       <div class="buy-button">
         <a (click)="connect()" class="btn btn-primary">{{ _isConnected ? 'Connected' : 'Connect'}}</a>
       </div>
-    </span>
-    <!--end login button-->
-  </div>
-  <!--end container-->
+    </span> </div>
 </header>
-<!--end header-->
-<!-- Navbar End -->

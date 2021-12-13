@@ -1,15 +1,34 @@
-import {Value } from '../../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib';
-import { Component, OnInit } from '@angular/core';
-import { OwlOptions } from 'ngx-owl-carousel-o';
-import { CardanoRef } from '../../models/CardanoRef';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Horrocube } from '../../models/Horrocube';
-import { Collectible } from '../../models/Collectible';
-import { CardanoService } from '../../cardano.service';
-import { StoryService } from '../../story.service';
-import { DatumMappings } from '../../data/DatumMappings';
-import { Router, NavigationEnd } from '@angular/router';
+/**
+ * @file IndexComponent.ts
+ *
+ * @author Angel Castillo <angel.castillo@horrocubes.io>
+ * @date   Dec 10 2021
+ *
+ * @copyright Copyright 2021 Horrocubes.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* IMPORTS *******************************************************************/
+
+import { Component, OnInit }    from '@angular/core';
+import { Horrocube }            from '../../models/Horrocube';
+import { Collectible }          from '../../models/Collectible';
+import { DAppConnectorService } from '../../DAppConnector.service';
+import { DatumMappings }        from '../../data/DatumMappings';
+import { Router }               from '@angular/router';
+
+// EXPORTS ************************************************************************************************************/
 
 @Component({
   selector: 'app-index',
@@ -27,8 +46,20 @@ export class IndexComponent implements OnInit {
   isLoading =  true;
   isConnected =  false;
   isNamiWalletPresent = false;
-  constructor(private _cardano: CardanoService, private _story: StoryService, private router: Router) {}
 
+  /**
+   * @summary Initializes a new instance of the Footer class.
+   * 
+   * @param _cardano The Cardano dApp connector.
+   * @param router The router.
+   */
+  constructor(private _cardano: DAppConnectorService, private router: Router)
+  {
+  }
+
+  /**
+   * @summary Initialize the component after Angular initializes the data-bound input properties.
+   */
   ngOnInit(): void
   {
     if (!this._cardano.isWalletInjected())
@@ -61,7 +92,6 @@ export class IndexComponent implements OnInit {
               }
             }
 
-
             this.cubes.push(asset);
             this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
             this.isLoading = false;
@@ -80,13 +110,25 @@ export class IndexComponent implements OnInit {
     });
   }
 
-
+  /**
+   * Parses the asset name (takes the serial digits only)
+   * 
+   * @param name The asset name.
+   * 
+   * @returns The serial numbers.
+   */
   parseAssetName(name: string)
   {
     return name.substr(9, 5);
   }
 
-
+  /**
+   * Parses the card name (takes the serial digits only).
+   * 
+   * @param name The card name.
+   * 
+   * @returns The serial numbers.
+   */
   parseCardAssetName(name: string)
   {
     if (name.includes('Horrocard')) {
@@ -96,6 +138,13 @@ export class IndexComponent implements OnInit {
     return name.substr(name.length - 14, 5);
   }
 
+  /**
+   * Cleans the Card name.
+   * 
+   * @param name The card name.
+   * 
+   * @returns The cleaned card name.
+   */
   cleanCardName(name: string)
   {
     name = name.replace('Horrocard - ', '');
@@ -103,9 +152,14 @@ export class IndexComponent implements OnInit {
     return name;
   }
 
+  /**
+   * Opens a story.
+   * 
+   * @param cube The cube to open the story for.
+   */
   openStory(cube: Horrocube)
   {
-    this._story.setCurrentCube(cube);
+    //this._story.setCurrentCube(cube);
     this.router.navigate(['/story']);
   }
 }

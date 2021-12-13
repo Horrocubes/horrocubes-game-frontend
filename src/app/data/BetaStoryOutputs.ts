@@ -22,17 +22,18 @@
 // IMPORTS *************************************************************************************************************/
 
 import * as EmurgoSerialization from '../vendors/@emurgo/cardano-serialization-lib-browser/cardano_serialization_lib';
-import { Buffer } from 'buffer';
+import { Buffer }               from 'buffer';
+
 // CONSTANTS **********************************************************************************************************/
 
-const COINS_POLICY_ID = 'fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6';
-const COINS_TOKEN_NAME = 'Horrocoin';
-const ADA_LOVELACE = 'lovelace';
-const MAX_PUZZLE_INDEX = 3;
-const ADA_ONLY_OUTPUT = '5000000';
-const CONTRACT_ADA_OUTPUT = '3000000';
+const COINS_POLICY_ID         = 'fc89b826eaf4745f78bce25297af9cb2eb44909acdf1e2bb71bed1a6';
+const COINS_TOKEN_NAME        = 'Horrocoin';
+const ADA_LOVELACE            = 'lovelace';
+const MAX_PUZZLE_INDEX        = 3;
+const ADA_ONLY_OUTPUT         = '5000000';
+const CONTRACT_ADA_OUTPUT     = '3000000';
 const NFT_TRANSFER_ADA_OUTPUT = '3000000';
-const CONTRACT_COIN_BALANCE = 4;
+const CONTRACT_COIN_BALANCE   = 4;
 
 // EXPORTS ************************************************************************************************************/
 

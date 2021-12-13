@@ -156,7 +156,6 @@
         return levels.get(level);
     }
 
-
     /**
      * Gets the datum value as JSON.
      *
