@@ -69,6 +69,7 @@ const CPU_BUDGET:        string = "3500000000";
 export class DAppConnectorService
 {
   private _isConnected$: BehaviorSubject < boolean > = new BehaviorSubject < boolean > (false);
+  private _currentCube:  Horrocube                   = null;
 
   /**
    * Initiaize a new instance of the DAppConnector class.
@@ -234,6 +235,24 @@ export class DAppConnectorService
       }));
   }
 
+  /**
+   * Sets the cube on use.
+   * @param cube The sube.
+   */
+  setCurrentCube(cube: Horrocube)
+  {
+    this._currentCube = cube;
+  }
+
+  /**
+   * Gets the cube on use.
+   * @return cube The sube.
+   */
+  getCurrentCube()
+  {
+    return this._currentCube;
+  }
+     
   /**
    * Creates a horrocube insntance from an asset.
    * 
@@ -607,7 +626,7 @@ export class DAppConnectorService
    */
   async sendTransaction(service, tx: string)
   {
-    const txHash = await service.getWalletInstance().cardano.submitTx(tx);
+    const txHash = await service.getWalletInstance().submitTx(tx);
     return txHash;
   }
 

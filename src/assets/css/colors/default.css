@@ -1,3 +1,8 @@
+.grayscale {
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
+}
+
 .thread-reply-file {
   font-weight: bold;
   font-size: 10px;

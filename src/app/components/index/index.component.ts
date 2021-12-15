@@ -42,6 +42,7 @@ import { Router }               from '@angular/router';
 export class IndexComponent implements OnInit {
 
   cubes: Horrocube[] = [];
+  inActiveCubes: Horrocube[] = [];
   collectibles: Collectible[] = [];
   isLoading =  true;
   isConnected =  false;
@@ -92,22 +93,31 @@ export class IndexComponent implements OnInit {
               }
             }
 
-            this.cubes.push(asset);
-            this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
-            this.isLoading = false;
-          });
-
-        this._cardano.getCollectibles().subscribe(asset =>
+            if (asset.stories.length > 0)
             {
-              if (asset === null)
-                return;
-
-              this.collectibles.push(asset);
-              this.collectibles.sort((a, b) => a.assetName.localeCompare(b.assetName));
+              this.cubes.push(asset);
+              this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
               this.isLoading = false;
-            });
+            }
+            else
+            {
+              this.inActiveCubes.push(asset);
+              this.inActiveCubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
+              this.isLoading = false;
+            }
+          });
       }
     });
+  }
+
+  /**
+   * Gets whether this wallet has any Horrocubes.
+   * 
+   * @return true if has cubes; otherwise; false.
+   */
+  hasCubes(): boolean
+  {
+    return this.inActiveCubes.length > 0 || this.cubes.length > 0;
   }
 
   /**
@@ -159,7 +169,7 @@ export class IndexComponent implements OnInit {
    */
   openStory(cube: Horrocube)
   {
-    //this._story.setCurrentCube(cube);
+    this._cardano.setCurrentCube(cube);
     this.router.navigate(['/story']);
   }
 }

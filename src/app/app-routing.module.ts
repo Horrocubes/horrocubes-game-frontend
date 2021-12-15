@@ -52,7 +52,8 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forRoot(routes, { scrollPositionRestoration: 'enabled',
   scrollOffset: [0, 0],
-  anchorScrolling: 'enabled'})],
+  anchorScrolling: 'enabled',
+  onSameUrlNavigation: 'reload'})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

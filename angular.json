@@ -32,6 +32,9 @@
               "src/assets/css/materialdesignicons.min.css",
               "src/assets/css/fonts-underworld.css"
             ],
+            "scripts": [
+              "node_modules/vanta/dist/vanta.cells.min.js"
+            ],
             "vendorChunk": true,
             "extractLicenses": false,
             "buildOptimizer": false,

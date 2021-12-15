@@ -104,4 +104,29 @@ export class HeaderComponent implements OnInit {
     this._cardano.requestWalletAccess();
     this._cardano.getConnectionState().subscribe(x => this._isConnected = x);
   }
+
+  /**
+   * Window scroll method
+   */
+  windowScroll()
+  {
+    if (
+      document.body.scrollTop > 50 ||
+      document.documentElement.scrollTop > 50
+    ) {
+      document.getElementById("topnav").classList.add("nav-sticky");
+    } else {
+      document.getElementById("topnav").classList.remove("nav-sticky");
+    }
+    if (document.getElementById("back-to-top")) {
+      if (
+        document.body.scrollTop > 100 ||
+        document.documentElement.scrollTop > 100
+      ) {
+        document.getElementById("back-to-top").style.display = "inline";
+      } else {
+        document.getElementById("back-to-top").style.display = "none";
+      }
+    }
+  }
 }

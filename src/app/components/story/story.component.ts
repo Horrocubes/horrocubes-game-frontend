@@ -25,10 +25,12 @@ import { Component, OnInit }    from '@angular/core';
 import { Router }               from '@angular/router';
 import { Horrocube }            from 'src/app/models/Horrocube';
 import { DomSanitizer }         from '@angular/platform-browser';
+import { AplaStoryContent }     from 'src/app/models/content/AplaStoryContent';
 import { Level }                from 'src/app/models/Level';
 import { Sha256 }               from '../../vendors/sha256';
 import { NgbModal }             from '@ng-bootstrap/ng-bootstrap';
 import { ViewChild }            from '@angular/core';
+import { Story }                from 'src/app/models/Story';
 import { DAppConnectorService } from '../../DAppConnector.service';
 
 // EXPORTS ************************************************************************************************************/
@@ -48,6 +50,9 @@ export class StoryComponent implements OnInit {
   _currentLevel: Level = new Level();
   _currentCube: Horrocube;
   _interval;
+  _story: Story = null;
+  _content:AplaStoryContent = new AplaStoryContent();
+  private routeReuseStrategy:any;
 
   @ViewChild('ModalContentCorrect', { static: false })
   private _rightContent;
@@ -62,8 +67,10 @@ export class StoryComponent implements OnInit {
    * @param router The router.
    * @param modalService The modal service.
    */
-  constructor(private _cardano: DAppConnectorService, private router: Router, private modalService: NgbModal)
+  constructor(private _cardano: DAppConnectorService, private router: Router, private modalService: NgbModal, private sanitizer: DomSanitizer)
   {
+    this.routeReuseStrategy = this.router.routeReuseStrategy.shouldReuseRoute;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
 
   /**
@@ -71,14 +78,41 @@ export class StoryComponent implements OnInit {
    */
   ngOnInit(): void
   {
-    //this.story.getCurrentLevel().subscribe((x) => this._currentLevel = x);
-    //this.story.getAllLevels().subscribe((x) => this._levels = x);
-    //this._currentCube = this.story.getcurrentCube();
+    this._currentCube = this._cardano.getCurrentCube();
 
     if (this._currentCube == null) {
     this.router.navigate(['/']);
     }
-    console.log(this._currentCube);
+
+    this._story = this._currentCube.stories[0];
+
+    for (let i = 0; i < this._story.levels.length; ++i)
+    {
+      if (i === this._story.currentLevel)
+      {
+        this._story.levels[i].isCurrent = true;
+        this._story.levels[i].isSolved = false;
+        for (let j = 0; j < i; ++j)
+        {
+          this._story.levels[j].isCurrent = false;
+          this._story.levels[j].isSolved = true;
+        }
+      }
+      else
+      {
+        this._story.levels[i].isCurrent = false;
+        this._story.levels[i].isSolved = false;
+      }
+    }
+    console.log(this._story);
+  }
+
+  /**
+   * @summary Event handler for when the component is destroyed.
+   */
+  public ngOnDestroy():void
+  {
+    this.router.routeReuseStrategy.shouldReuseRoute = this.routeReuseStrategy;
   }
 
   /**
@@ -98,7 +132,7 @@ export class StoryComponent implements OnInit {
    */
   getLevelTrackerSegmentWidth()
   {
-    return (100.0 / (this._levels.length)) + '%';
+    return (100.0 / (this._story.levels.length)) + '%';
   }
 
   /**
@@ -108,9 +142,39 @@ export class StoryComponent implements OnInit {
    */
   getCurrentContent()
   {
-    return this._levels.find((x) => x.isCurrent);
+    return this.sanitizer.bypassSecurityTrustHtml(this._content.getLevelContent(this._story.currentLevel));
   }
 
+  /**
+   * Gets the current content of the level.
+   * 
+   * @returns The content.
+   */
+  getCurrentLevelTitle()
+  {
+    return this._content.getLevelName(this._story.currentLevel);
+  }
+
+  /**
+   * Gets the current content of the level.
+   * 
+   * @returns The content.
+   */
+  getCurrentLevelRewards()
+  {
+    return this._content.getLevelRewards(this._story.currentLevel);
+  }
+
+  /**
+   * Gets the current hint of the level.
+   * 
+   * @returns The content.
+   */
+   getCurrentHint()
+   {
+     return this._content.getLevelHint(this._story.currentLevel);
+   }
+  
   /**
    * Opens the modal.
    * @param content The content of the modal.
@@ -148,7 +212,6 @@ export class StoryComponent implements OnInit {
       const nexDatValue    = currDatumValue + 1;
 
       this.openModal(this._rightContent);
-      this._currentCube.stories[0].currentLevel += 1;
 
       const tx = await this._cardano.buildTransaction(this._currentCube, currDatumValue, nexDatValue, firstPass);
       let txId = await this._cardano.sendTransaction(this._cardano, tx);
@@ -177,7 +240,17 @@ export class StoryComponent implements OnInit {
         if (isConfirmed)
         {
           clearInterval(this._interval);
-          this.router.navigate(['/']);
+          this._cardano.setCurrentCube(this._currentCube);
+
+          if (this._currentCube.stories[0].currentLevel === 3)
+          {
+            this.router.navigate(['/']);
+          }
+          else
+          {
+            this.router.navigate(['/story']);
+          }
+
           this.closeModal();
         }
       });

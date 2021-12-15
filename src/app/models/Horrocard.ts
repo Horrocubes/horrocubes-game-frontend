@@ -1,5 +1,5 @@
 /**
- * @file Collectible.ts
+ * @file Horrocard.ts
  *
  * @author Angel Castillo <angel.castillo@horrocubes.io>
  * @date   Dec 10 2021

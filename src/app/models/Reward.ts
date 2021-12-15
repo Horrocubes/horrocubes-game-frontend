@@ -1,5 +1,5 @@
 /**
- * @file Level.ts
+ * @file Reward.ts
  *
  * @author Angel Castillo <angel.castillo@horrocubes.io>
  * @date   Dec 10 2021
@@ -19,25 +19,16 @@
  * limitations under the License.
  */
 
-/* IMPORTS *******************************************************************/
-
-import { LevelFile } from './LevelFile';
-
 /* EXPORTS *******************************************************************/
 
 /**
- * @summary The level model.
+ * @summary The reward model.
  */
-export class Level
+export class Reward
  {
      constructor(
-         public title: String = '',
-         public content: String = '',
-         public files: LevelFile[] = [],
-         public answerHash: String = '',
-         public isSolved: boolean = false,
-         public isEncrypted: boolean = true,
-         public isCurrent: boolean = true)
+         public name: String[] = [],
+         public image: String[] = [])
      {
      }
  }
