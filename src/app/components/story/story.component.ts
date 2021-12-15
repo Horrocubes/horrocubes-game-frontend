@@ -52,14 +52,16 @@ export class StoryComponent implements OnInit {
   _interval;
   _story: Story = null;
   _content:AplaStoryContent = new AplaStoryContent();
+  _invalidAnswer: boolean = false;
+
   private routeReuseStrategy:any;
 
   @ViewChild('ModalContentCorrect', { static: false })
   private _rightContent;
 
-  @ViewChild('ModalContentIncorrect', { static: false })
-  private _wrongContent;
-
+  @ViewChild('WaitingForConfirmation', { static: false })
+  private _waitForConfirmation;
+  
   /**
    * @summary Initializes a new instance of the StoryComponent class.
    * 
@@ -181,7 +183,18 @@ export class StoryComponent implements OnInit {
    */
   openModal(content)
   {
-    this.modalService.open(content, { size: 'lg', windowClass: 'modal-holder', centered: true });
+    this.modalService.open(content, { size: 'lg', windowClass: 'modal-holder', centered: true, backdrop: 'static', animation: true });
+  }
+
+  /**
+   * Reloads this component.
+   */
+  reloadComponent()
+  {
+    let currentUrl = this.router.url;
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([currentUrl]);
   }
 
   /**
@@ -216,11 +229,16 @@ export class StoryComponent implements OnInit {
       const tx = await this._cardano.buildTransaction(this._currentCube, currDatumValue, nexDatValue, firstPass);
       let txId = await this._cardano.sendTransaction(this._cardano, tx);
 
+      this.closeModal();
+      this.openModal(this._waitForConfirmation);
       this.startTimer(txId);
     }
     else
     {
-      this.openModal(this._wrongContent);
+      this._invalidAnswer = true;
+      setTimeout(()=>{ 
+        this._invalidAnswer = false;
+      }, 500);
     }
   }
 
@@ -248,7 +266,9 @@ export class StoryComponent implements OnInit {
           }
           else
           {
-            this.router.navigate(['/story']);
+            this._story.currentLevel = this._story.currentLevel + 1;
+            this._currentCube.stories[0] = this._story;
+            this.reloadComponent();
           }
 
           this.closeModal();
