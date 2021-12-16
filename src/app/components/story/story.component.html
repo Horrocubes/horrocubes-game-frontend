@@ -38,15 +38,15 @@
 
 
           <label class="form-label">Hints</label>
-          <div [innerHTML]=getCurrentHint() style="color: black;
-          background-color:black;width: 100%;text-align: justify;"></div><br><br>
-          <span class="text-muted">Still feeling stuck? Head over our <a class="mt-3 text-primary" href="https://discord.gg/QFM39fwA6j">Discord</a>, we discussion channels for all puzzles.</span>
+          <div [innerHTML]=getCurrentHint() style="color: #202a36;
+          background-color:#202a36;width: 100%;text-align: justify;"></div><br><br>
+          <span class="text-muted">Still feeling stuck? Head over our <b><a class="mt-3 text-primary" href="https://discord.gg/QFM39fwA6j">Discord</a></b>, we discussion channels for all puzzles.</span>
         <br></div><br><br>
         <hr>
       <div style="width: 50%;margin: 0 auto;text-align: center;" class="mb-3">
         <label class="form-label">Answer</label>
         <div class="form-icon position-relative">
-          <input #answer id="answer" [className]="_invalidAnswer ? 'form-control ps-5 invalid' : 'form-control ps-5'" placement="bottom" type="text">
+          <input #answer id="answer" [className]="_invalidAnswer ? 'form-control ps-5 invalid' : 'form-control ps-5'" placement="bottom" type="text" autocomplete="off">
             <br>
             <span>
               <div (click)="onClick(answer.value)" class="buy-button">
@@ -99,6 +99,31 @@
         <div *ngIf="_currentTx !== null && _modalState === 2">
           <p class="text-muted" style="text-align: center;">You can view the transaction <a href="https://cardanoscan.io/transaction/{{_currentTx}}" class="text-primary"><b>Here</b></a></p>
         </div>
+        <br>
+        <div class="form-icon position-relative">
+            <span>
+              <div (click)="closeModal()" class="buy-button">
+                <a class="btn btn-primary">Close</a>
+              </div>
+            </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+<ng-template #ModalStorySolved let-modal>
+  <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
+    <div class="modal-body py-5">
+      <div class="text-center">
+        <div>
+          <a class="logo" routerLink="/index">
+            <img src="https://storage.googleapis.com/horrocubes_web_assets/horrologo.png" class="logo-dark-mode" height="80" alt="">
+          </a>
+        </div>
+        <h3>Congratulations</h3><br>
+        <p class="text-muted">You have completed <span class="text-primary"><b>{{sanitizeStoryName()}}</b></span></p>
+        <img src="https://storage.googleapis.com/horrocubes_web_assets/puzzle_alpha/rewards/poster.png" class="logo-dark-mode" height="400" alt=""><br><br>
+        <p class="text-muted">Thanks for helping us test the smart-contracts of the game. We hope you enjoyed the experience, this is just but a small bite of the great things that are to come!</p>
         <br>
         <div class="form-icon position-relative">
             <span>

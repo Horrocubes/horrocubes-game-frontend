@@ -111,6 +111,18 @@ export class IndexComponent implements OnInit {
   }
 
   /**
+   * Gets the current progress of this cube in this story.
+   * 
+   * @param horrocube The cube to get the story from.
+   * 
+   * @returns The progress percentage.
+   */
+  getProgress(horrocube: Horrocube)
+  {
+    return (horrocube.stories[0]?.currentLevel) * (100 / horrocube.stories[0]?.levels.length);
+  }
+
+  /**
    * Gets whether this wallet has any Horrocubes.
    * 
    * @return true if has cubes; otherwise; false.

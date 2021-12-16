@@ -64,7 +64,10 @@ export class StoryComponent implements OnInit {
   @ViewChild('ModalContentCorrect', { static: false })
   private _rightContent;
 
-    /**
+  @ViewChild('ModalStorySolved', { static: false })
+  private _solvedContent;
+
+  /**
    * @summary Initializes a new instance of the StoryComponent class.
    * 
    * @param _cardano The Cardano dApp connector.
@@ -303,6 +306,8 @@ export class StoryComponent implements OnInit {
           if (this._currentCube.stories[0].currentLevel === 3)
           {
             this.router.navigate(['/']);
+            this.closeModal();
+            this.openModal(this._solvedContent);
           }
           else
           {
@@ -316,5 +321,15 @@ export class StoryComponent implements OnInit {
         }
       });
     }, 5000);
+  }
+
+  /**
+   * Sanitizes the name of the story.
+   * 
+   * @returns Name of the story.
+   */
+  sanitizeStoryName()
+  {
+    return this._story.name.replace("Horrocubes Story - ", "");
   }
 }

@@ -51,8 +51,9 @@ const STORY_NFT_PREFIX:  string = "Story0000Horrocube";
 const TROPHY_NFT_PREFIX: string = "AzathothianPillar";
 const REWARDS_POLICY_ID: string = "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c";
 const ADA_LOVELACE:      string = "lovelace";
-const MEM_BUDGET:        string = "12500000";
-const CPU_BUDGET:        string = "3600000000";
+const MEM_BUDGET:        string = "12000000";
+const CPU_BUDGET:        string = "3000000000";
+const MAX_INPUT_SIZE:    number = 500;
 
 // EXPORTS ************************************************************************************************************/
 
@@ -397,7 +398,11 @@ export class DAppConnectorService
       EmurgoSerialization.Address.from_bytes(this.fromHex((await this.getWalletInstance().getUsedAddresses())[0])));
 
     const utxos = (await this.getWalletInstance().getUtxos())
-      .map((utxo) => EmurgoSerialization.TransactionUnspentOutput.from_bytes(this.fromHex(utxo)));
+      .filter((utxo)=> this.fromHex(utxo).length < MAX_INPUT_SIZE)
+      .map((utxo) => {
+        console.log(this.fromHex(utxo).length);
+        return EmurgoSerialization.TransactionUnspentOutput.from_bytes(this.fromHex(utxo))
+      });
 
     if (currentDatum < MAX_PUZZLE_INDEX)
       datums.add(nextDatumObj);
@@ -458,6 +463,7 @@ export class DAppConnectorService
       );
     });
 
+    console.log("total outputs: " + outputs.len());
     for (let i = 0; i < outputs.len(); i++)
       txBuilder.add_output(outputs.get(i));
 
