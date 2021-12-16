@@ -48,6 +48,7 @@
     "ngx-masonry": "^10.0.6",
     "ngx-owl-carousel-o": "^4.0.0",
     "ngx-swiper-wrapper": "^10.0.0",
+    "ngx-toastr": "^14.2.1",
     "ngx-typed-js": "^2.0.2",
     "ngx-youtube-player": "^9.1.0",
     "rxjs": "~6.6.0",

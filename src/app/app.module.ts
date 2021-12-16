@@ -56,6 +56,11 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { CardanoRef } from './models/CardanoRef';
 import { DAppConnectorService } from './DAppConnector.service';
 import { StoryComponent } from './components/story/story.component';
+import { ErrorAnimationComponent } from './components/animations/error-animation/error-animation.component';
+import { WaitingAnimationComponent } from './components/animations/waiting-animation/waiting-animation.component';
+import { WarningAnimationComponent } from './components/animations/warning-animation/warning-animation.component';
+import { SuccessAnimationComponent } from './components/animations/success-animation/success-animation.component';
+import { InformationAnimationComponent } from './components/animations/information-animation/information-animation.component';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -78,7 +83,12 @@ const DEFAULT_SWIPER_CONFIG: SwiperConfigInterface = {
     IndexComponent,
     PageErrorComponent,
     StoryComponent,
-    MasterPageComponent
+    MasterPageComponent,
+    ErrorAnimationComponent,
+    WaitingAnimationComponent,
+    WarningAnimationComponent,
+    SuccessAnimationComponent,
+    InformationAnimationComponent
   ],
   imports: [
     BrowserModule,

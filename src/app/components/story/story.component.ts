@@ -32,6 +32,7 @@ import { NgbModal }             from '@ng-bootstrap/ng-bootstrap';
 import { ViewChild }            from '@angular/core';
 import { Story }                from 'src/app/models/Story';
 import { DAppConnectorService } from '../../DAppConnector.service';
+import { map }                  from 'rxjs/internal/operators';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -53,16 +54,17 @@ export class StoryComponent implements OnInit {
   _story: Story = null;
   _content:AplaStoryContent = new AplaStoryContent();
   _invalidAnswer: boolean = false;
+  _popupTitle: String = "Solving Puzzle";
+  _popupDescription: String = "Building Transaction";
+  _modalState: number = 0;
+  _currentTx = null;
 
   private routeReuseStrategy:any;
 
   @ViewChild('ModalContentCorrect', { static: false })
   private _rightContent;
 
-  @ViewChild('WaitingForConfirmation', { static: false })
-  private _waitForConfirmation;
-  
-  /**
+    /**
    * @summary Initializes a new instance of the StoryComponent class.
    * 
    * @param _cardano The Cardano dApp connector.
@@ -83,7 +85,7 @@ export class StoryComponent implements OnInit {
     this._currentCube = this._cardano.getCurrentCube();
 
     if (this._currentCube == null) {
-    this.router.navigate(['/']);
+      this.router.navigate(['/']);
     }
 
     this._story = this._currentCube.stories[0];
@@ -212,6 +214,12 @@ export class StoryComponent implements OnInit {
    */
   async onClick(value)
   {
+    // Reset popup state
+    this._popupTitle = "Solving Puzzle";
+    this._popupDescription = "Building Transaction.";
+    this._modalState = 0;
+    this._currentTx = null;
+
     const firstPass = Sha256.hash(this._currentCube.policyId + '.' + this._currentCube.assetName + value);
     const secondPass = Sha256.hash(firstPass, {messageFormat: 'hex-bytes'});
 
@@ -226,11 +234,41 @@ export class StoryComponent implements OnInit {
 
       this.openModal(this._rightContent);
 
-      const tx = await this._cardano.buildTransaction(this._currentCube, currDatumValue, nexDatValue, firstPass);
-      let txId = await this._cardano.sendTransaction(this._cardano, tx);
+      this._popupDescription = "Building Transaction";
 
-      this.closeModal();
-      this.openModal(this._waitForConfirmation);
+      let tx   = null;
+      let txId = null;
+
+      try
+      {
+        tx = await this._cardano.buildTransaction(this._currentCube, currDatumValue, nexDatValue, firstPass, (x)=> {this._popupDescription = x});
+      }
+      catch (e)
+      {
+          console.log('Error occurred', e);
+          this._popupTitle = "Error";
+          this._popupDescription = "There was an error building the transaction.";
+          this._modalState = 1;
+          this._currentTx = null;
+          return;
+      }
+
+      try
+      {
+        txId = await this._cardano.sendTransaction(this._cardano, tx);
+      }
+      catch (e)
+      {
+          console.log('Error occurred', e);
+          this._popupTitle = "Error";
+          this._popupDescription = "There was signing the transaction.";
+          this._modalState = 1;
+          this._currentTx = null;
+          return;
+      }
+
+      this._popupDescription = "Waiting transaction to be confirmed...";
+      this._currentTx = txId;
       this.startTimer(txId);
     }
     else
@@ -257,8 +295,10 @@ export class StoryComponent implements OnInit {
         console.log(isConfirmed);
         if (isConfirmed)
         {
+          this._popupTitle = "Puzzle Solved";
+          this._popupDescription = "Transaction Confirmed. Your rewards should appear in your wallet shortly.";
+          this._modalState = 2;
           clearInterval(this._interval);
-          this._cardano.setCurrentCube(this._currentCube);
 
           if (this._currentCube.stories[0].currentLevel === 3)
           {
@@ -266,12 +306,13 @@ export class StoryComponent implements OnInit {
           }
           else
           {
-            this._story.currentLevel = this._story.currentLevel + 1;
-            this._currentCube.stories[0] = this._story;
-            this.reloadComponent();
+            this._cardano.getStories(this._currentCube.policyId + '.' + this._currentCube.assetName).pipe(map(x => this._cardano.createHorrocube(x)))
+              .subscribe((x)=> 
+              {
+                this._cardano.setCurrentCube(x);
+                this.reloadComponent();
+              });
           }
-
-          this.closeModal();
         }
       });
     }, 5000);

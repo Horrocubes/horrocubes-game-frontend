@@ -90,33 +90,23 @@
   <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
     <div class="modal-body py-5">
       <div class="text-center">
-        <h5>Correct!</h5>
-          <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
-          <p class="text-muted">You provided the right answer! please sign the transaction.</p>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #WaitingForConfirmation let-modal>
-  <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
-    <div class="modal-body py-5">
-      <div class="text-center">
-        <h5>Waiting for Confirmation...</h5>
-          <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
-          <p class="text-muted">Waiting for the transaction to be confirmed. This could take up to a minute.</p>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #ModalContentIncorrect let-modal>
-  <div class="modal-content rounded shadow border-0" style="background-color:#1c2530 ">
-    <div class="modal-body py-5">
-      <div class="text-center">
-        <h5>Incorrect!</h5>
-          <sa-spinner-dotted styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
-          <p class="text-muted">You provided the wrong answer!.</p>
+        <sa-spinner-dotted *ngIf="_modalState === 0" styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
+        <error-animation *ngIf="_modalState === 1"></error-animation> 
+        <success-animation *ngIf="_modalState === 2"></success-animation> 
+        <h5>{{_popupTitle}}</h5>
+        <p class="text-muted">{{_popupDescription}}</p>
+        
+        <div *ngIf="_currentTx !== null && _modalState === 2">
+          <p class="text-muted" style="text-align: center;">You can view the transaction <a href="https://cardanoscan.io/transaction/{{_currentTx}}" class="text-primary"><b>Here</b></a></p>
+        </div>
+        <br>
+        <div class="form-icon position-relative">
+            <span>
+              <div (click)="closeModal()" class="buy-button">
+                <a class="btn btn-primary">Close</a>
+              </div>
+            </span>
+        </div>
       </div>
     </div>
   </div>

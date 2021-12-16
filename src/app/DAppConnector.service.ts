@@ -52,7 +52,7 @@ const TROPHY_NFT_PREFIX: string = "AzathothianPillar";
 const REWARDS_POLICY_ID: string = "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c";
 const ADA_LOVELACE:      string = "lovelace";
 const MEM_BUDGET:        string = "12500000";
-const CPU_BUDGET:        string = "3500000000";
+const CPU_BUDGET:        string = "3600000000";
 
 // EXPORTS ************************************************************************************************************/
 
@@ -302,7 +302,7 @@ export class DAppConnectorService
 
       story.eUtxoId = JSON.parse(asset.utxos[i]);
       story.plutusScript = JSON.parse(asset.stories[i].plutusScript);
-
+      story.currentLevel = DatumMappings.getLevelFromDatum(story.eUtxoId.content.datumhash);
       metadata.description.forEach(segment =>
       {
         story.description += segment;
@@ -382,7 +382,7 @@ export class DAppConnectorService
    * 
    * @returns The transaction.
    */
-  async buildTransaction(horrocube: Horrocube, currentDatum: number, nextDatum: number, answerHash: string)
+  async buildTransaction(horrocube: Horrocube, currentDatum: number, nextDatum: number, answerHash: string, updateCallback?)
   {
     let redeemerObj = this.getRedeemer(currentDatum.toString(), answerHash);
     let originalDatumObj = this.getDatum(currentDatum.toString());
@@ -592,6 +592,9 @@ export class DAppConnectorService
     fixedTx = fixedTx.replace(DatumMappings.getSerializationLibDatumData(currentDatum), DatumMappings.getCliDatumData(currentDatum));
     fixedTx = fixedTx.replace(DatumMappings.getSerializationLibDatumData(nextDatum), DatumMappings.getCliDatumData(nextDatum));
     fixedTx = fixedTx.replace(originalScriptDataHash, newDataHash);
+
+    if (updateCallback)
+      updateCallback("Signing Transaction");
 
     let txVkeyWitnesses = await this.getWalletInstance().signTx(fixedTx, true);
     txVkeyWitnesses = EmurgoSerialization.TransactionWitnessSet.from_bytes(this.fromHex(txVkeyWitnesses));
