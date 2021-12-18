@@ -33,6 +33,7 @@ import { ViewChild }            from '@angular/core';
 import { Story }                from 'src/app/models/Story';
 import { DAppConnectorService } from '../../DAppConnector.service';
 import { map }                  from 'rxjs/internal/operators';
+import { BlockchainParameters } from 'src/app/data/BlockchainParameters';
 
 // EXPORTS ************************************************************************************************************/
 
@@ -58,6 +59,7 @@ export class StoryComponent implements OnInit {
   _popupDescription: String = "Building Transaction";
   _modalState: number = 0;
   _currentTx = null;
+  _errorMessage = null;
 
   private routeReuseStrategy:any;
 
@@ -247,13 +249,46 @@ export class StoryComponent implements OnInit {
         tx = await this._cardano.buildTransaction(this._currentCube, currDatumValue, nexDatValue, firstPass, (x)=> {this._popupDescription = x});
       }
       catch (e)
-      {
-          console.log('Error occurred', e);
-          this._popupTitle = "Error";
-          this._popupDescription = "There was an error building the transaction.";
-          this._modalState = 1;
+      { 
+        
+        // HACK: add a better way to handle error types.
+        if (e.message.includes("INPUT_LIMIT_EXCEEDED"))
+        {
+          this._errorMessage = null;
+          this._popupTitle = "Input Limit Exceeded";
+          this._popupDescription = "The number of randomly picked inputs exceed the 'limit' parameter.\n\nPlease re-try building the transaction.";
+          this._modalState = 3;
           this._currentTx = null;
           return;
+        }
+
+        if (e.message.includes("INPUTS_EXHAUSTED"))
+        {
+          this._errorMessage = null;
+          this._popupTitle = "Not Enough ADA Or Missing Native Asset(s)";
+          this._popupDescription = "The wallet doesnt have enough ADA or is missing one or more native assets to pay for the outputs.";
+          this._modalState = 3;
+          this._currentTx = null;
+          return;
+        }
+
+        if (e.message.includes("MIN_UTXO_ERROR"))
+        {
+          this._errorMessage = null;
+          this._popupTitle = "ADA Change Under Minimum Value";
+          this._popupDescription = "The Lovelace change is under 'minUTxOValue' parameter: " + BlockchainParameters.getProtocolParameters().minUtxo + " lovelace.";
+          this._modalState = 3;
+          this._currentTx = null;
+          return;
+        }
+
+        console.log('Error occurred', e);
+        this._errorMessage = e.message;
+        this._popupTitle = "Error";
+        this._popupDescription = "There was an error building the transaction.";
+        this._modalState = 1;
+        this._currentTx = null;
+        return;
       }
 
       try
@@ -262,7 +297,20 @@ export class StoryComponent implements OnInit {
       }
       catch (e)
       {
+          // HACK: add a better way to handle error types.
+
+          if (e.message.includes("InsufficientCollateral"))
+          {
+            this._errorMessage = null;
+            this._popupTitle = "Insufficient Collateral";
+            this._popupDescription = "Please make sure you have enough collateral set on your wallet.";
+            this._modalState = 3;
+            this._currentTx = null;
+            return;
+          }
+
           console.log('Error occurred', e);
+          this._errorMessage = e.message;
           this._popupTitle = "Error";
           this._popupDescription = "There was signing the transaction.";
           this._modalState = 1;

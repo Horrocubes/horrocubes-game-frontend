@@ -2,7 +2,7 @@
   <section class="section">
     <br><br><br>
     <div class="text-capitalize text-dark mb-4 error-page" style="text-align: center;">{{_content.getStoryTitle()}}</div>
-    <div class="row" class="">
+    <div class="row">
       <div class="col-xs-12 col-md-8 offset-md-2 block" >
         <div class="wrapper-progressBar">
           <ul class="progressBar">
@@ -93,9 +93,15 @@
         <sa-spinner-dotted *ngIf="_modalState === 0" styles='{"background-color": "transparent", "color":"#7c4fb0", "size": "200px", "height": "200px", "width": "100px"}'></sa-spinner-dotted>
         <error-animation *ngIf="_modalState === 1"></error-animation> 
         <success-animation *ngIf="_modalState === 2"></success-animation> 
+        <warning-animation *ngIf="_modalState === 3"></warning-animation> 
         <h5>{{_popupTitle}}</h5>
         <p class="text-muted">{{_popupDescription}}</p>
         
+        <div *ngIf="_modalState === 1 && _errorMessage !== null">
+          <textarea class="scrollabletextbox" name="note" value="">{{_errorMessage}}</textarea>
+          <br><br>
+          <p class="text-muted" style="text-align: center;">Please report the error on our <a href="https://discord.gg/JEEP3SH4Eb" class="text-primary"><b>Discord</b> </a> server.</p>
+        </div>
         <div *ngIf="_currentTx !== null && _modalState === 2">
           <p class="text-muted" style="text-align: center;">You can view the transaction <a href="https://cardanoscan.io/transaction/{{_currentTx}}" class="text-primary"><b>Here</b></a></p>
         </div>

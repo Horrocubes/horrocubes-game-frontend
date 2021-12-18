@@ -52,8 +52,8 @@ const TROPHY_NFT_PREFIX: string = "AzathothianPillar";
 const REWARDS_POLICY_ID: string = "6e8d3a062f9ab1d0b44c95ab4970e4ed8c8c9f99b577c3d3ee0cc97c";
 const ADA_LOVELACE:      string = "lovelace";
 const MEM_BUDGET:        string = "12000000";
-const CPU_BUDGET:        string = "3000000000";
-const MAX_INPUT_SIZE:    number = 500;
+const CPU_BUDGET:        string = "4000000000";
+const MAX_INPUT_SIZE:    number = 2000;
 
 // EXPORTS ************************************************************************************************************/
 

@@ -80,7 +80,6 @@ export class IndexComponent implements OnInit {
       {
         this._cardano.getHorrocubes().subscribe(asset =>
           {
-
             if (asset.stories.length > 0)
             {
               for (let i = 0; i < asset.stories.length; ++i)
@@ -95,12 +94,25 @@ export class IndexComponent implements OnInit {
 
             if (asset.stories.length > 0)
             {
+
+              for (let i=0 ; i< this.cubes.length; ++i)
+              {
+                if (this.cubes[i].name === asset.name)
+                  return;
+              }
+              
               this.cubes.push(asset);
               this.cubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
               this.isLoading = false;
             }
             else
             {
+              for (let i=0 ; i < this.inActiveCubes.length; ++i)
+              {
+                if (this.inActiveCubes[i].name === asset.name)
+                  return;
+              }
+
               this.inActiveCubes.push(asset);
               this.inActiveCubes.sort((a, b) => a.assetName.localeCompare(b.assetName));
               this.isLoading = false;

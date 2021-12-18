@@ -1,3 +1,19 @@
+.scrollabletextbox {
+  height: 200px;
+  width: 500px;
+  font-family: Consolas,Monaco,Andale Mono,Ubuntu Mono,monospace;
+  font-size: 82%;
+  overflow: auto;
+  border-radius: .3em;
+  margin: 2rem 0;
+  background: #111113;
+  background-image: linear-gradient(
+26deg
+,#292c38,#0e0e0e);
+  color: #c3c3c3;
+  border-color: #432d65;
+  }
+
 #answer.invalid {
   outline-color: red!important;
   /* also need animation and -moz-animation */

@@ -292,7 +292,8 @@
             '73fcabfb245af7d2885f334edc6e54622447389dd0ab9734e2fc3acf',
             'a5407c0512815d6c058082306efec9020f434f6288686a51ff583b5c',
             'b79424e6d0d309e2268b5c1bc6900d1cd0d0fd71f081e864caa90c81',
-            'e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd'
+            'e4a17bd85c7394d900a3c2942c01fb5d9e862537fbe6a2cdfbe319cd',
+            'f0b5032869528463f17f2c6c8b180edefb512c86936a2d7c27515611'
         ];
 
         return cubeIds.includes(policyId);

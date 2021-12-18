@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://192.168.0.94:8080/api/',
+  apiBaseUrl: 'https://beta.horrocubes.io/v1/api/',
   ipfsBaseUrl: 'https://gateway.pinata.cloud/ipfs/',
   cubePolicyId: 'f0b5032869528463f17f2c6c8b180edefb512c86936a2d7c27515611',
   storyPolicyId: '07599433c1f538dea3dfc580bf1a5422bb2753df29bdbcb76d68bffc',
