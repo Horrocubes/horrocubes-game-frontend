@@ -97,7 +97,7 @@ export class IndexComponent implements OnInit {
 
               for (let i=0 ; i< this.cubes.length; ++i)
               {
-                if (this.cubes[i].name === asset.name)
+                if (this.cubes[i].assetName === asset.assetName)
                   return;
               }
               
@@ -109,7 +109,7 @@ export class IndexComponent implements OnInit {
             {
               for (let i=0 ; i < this.inActiveCubes.length; ++i)
               {
-                if (this.inActiveCubes[i].name === asset.name)
+                if (this.inActiveCubes[i].assetName === asset.assetName)
                   return;
               }
 

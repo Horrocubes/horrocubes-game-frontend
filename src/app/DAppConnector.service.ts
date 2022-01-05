@@ -415,11 +415,11 @@ export class DAppConnectorService
     this.parseObjectProperties(horrocube.stories[0].eUtxoId.content.value, (k, prop) =>
     {
 
-      if (k.includes(STORY_NFT_PREFIX))
-        storyToken = REWARDS_POLICY_ID + this.toHex(k);
+      if (k.includes(this.toHex(STORY_NFT_PREFIX)))
+        storyToken = REWARDS_POLICY_ID + k;
 
-      if (k.includes(TROPHY_NFT_PREFIX))
-        trophyToken = REWARDS_POLICY_ID + this.toHex(k);
+      if (k.includes(this.toHex(TROPHY_NFT_PREFIX)))
+        trophyToken = REWARDS_POLICY_ID + k;
     })
 
     let originalBalance = BetaStoryOutputs.getOriginalBalance(currentDatum, storyToken, trophyToken);

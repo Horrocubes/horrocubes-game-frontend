@@ -213,6 +213,18 @@ export class StoryComponent implements OnInit {
   }
 
   /**
+   * Gets whether the given object if of string type.
+   * 
+   * @param x The object.
+   * 
+   * @returns true if it is a string; otherwise; false.
+   */
+  isString(x)
+  {
+    return Object.prototype.toString.call(x) === "[object String]"
+  }
+
+  /**
    * Event handler for when an answer is tried.
    * 
    * @param value The answer value.
@@ -251,7 +263,19 @@ export class StoryComponent implements OnInit {
       catch (e)
       { 
         
+        console.log(e);
+
         // HACK: add a better way to handle error types.
+        if (this.isString(e))
+        {
+          this._errorMessage = null;
+          this._popupTitle = "Error";
+          this._popupDescription = e;
+          this._modalState = 3;
+          this._currentTx = null;
+          return;
+        }
+
         if (e.message.includes("INPUT_LIMIT_EXCEEDED"))
         {
           this._errorMessage = null;
@@ -297,7 +321,18 @@ export class StoryComponent implements OnInit {
       }
       catch (e)
       {
+          console.log(e);
+
           // HACK: add a better way to handle error types.
+          if (this.isString(e))
+          {
+            this._errorMessage = null;
+            this._popupTitle = "Error";
+            this._popupDescription = e;
+            this._modalState = 3;
+            this._currentTx = null;
+            return;
+          }
 
           if (e.message.includes("InsufficientCollateral"))
           {
